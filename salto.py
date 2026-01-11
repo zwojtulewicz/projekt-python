@@ -8,7 +8,7 @@ import io
 # CZĘŚĆ LOGICZNA (KLASY I FUNKCJE)
 # ==========================================
 
-# Klasa User (Logika Julki/Ogólna)
+# Klasa User (Logika Zuzi/Ogólna)
 class User:
     def __init__(self, gender, age, weight, height, activity, restrictions, target):
         self._gender = gender
@@ -38,22 +38,6 @@ class User:
     @property
     def target(self):
         return self._target
-
-    def bmr(self):
-        # Wzór Mifflina-St Jeora
-        if self.gender == "kobieta":
-            return (10 * self.weight) + (6.25 * self.height) - (5 * self.age) - 161
-        else:
-            return (10 * self.weight) + (6.25 * self.height) - (5 * self.age) + 5
-
-    def tdee(self):
-        tdee_val = self.bmr() * self.activity   
-        if self.target == "schudnąć":
-            return round(tdee_val - 500)
-        elif self.target == "przytyć":
-            return round(tdee_val + 500)
-        else: # utrzymać wagę
-            return round(tdee_val)
         
     def macros(self):
         cal = self.tdee()
