@@ -1,0 +1,84 @@
+import streamlit as st # importuję bibliotekę streamlit do interpretacji graficznej w postaci strony internetowej działającej lokalnie
+
+st.title("🍎 Asystent Zdrowego Żywienia") # tytuł aplikacji
+st.write("Witaj w kompleksowym systemie wsparcia dietetycznego.") # podtytuł/pierwszy komunikat dla użytkownika
+
+tab1, tab2, tab3, tab4 = st.tabs(["Kalkulator BMI", "tirururu kod Ani", "tirururu kod Julki vol2", "tirururu kod Zuzi"]) # zdefiniowanie zakładek i ich tytułów
+
+# Zakładka nr.1 - kalkulator BMI
+
+with tab1:
+    st.header("Kalkulator BMI") # nagłówek zakładki
+    
+    col1, col2 = st.columns(2) # określenie liczby "kolumn", powoduje to, że wizualnie okienka do wpisania wagi i wzrostu będą wyświetlane obok siebie
+    
+    with col1:
+        # definiuje jak wyglądać będzie pierwsza część zakładki kalkulatora BMI - jest to numeryczny input wagi użytkownika, min_value określa minimalną wartość (w tym przypadku większą od 0),
+        # step pozwala na operację strzałkami +/-, gdzie każde kliknięcie zmienia wartość w okienku o 0.1
+        waga = st.number_input("Podaj wagę (kg)", min_value=0.0, step=0.1) # całość zapisana jest w zmiennej 'waga'
+
+    with col2:
+        # definiuje jak wyglądać będzie druga część zakładki kalkulatora BMI - jest to numeryczny input wzrostu użytkownika, min_value określa minimalną wartość (w tym przypadku większą od 0),
+        # step pozwala na operację strzałkami +/-, gdzie każde kliknięcie zmienia wartość w okienku o 0.1,
+        # dodatkowo uwzględniony jest konkretny format, który wymusi wyświetlenie wartości z zaokrągleniem do 2 miesjc po przecinku
+        wzrost = st.number_input("Podaj wzrost (m)", min_value=0.0, step=0.01, format="%.2f") # całość zapisana jest w zmiennej wzrost
+
+    if st.button("Oblicz moje BMI"): # uwtorzenie przycisku do wywołania dalszej części kodu
+        if waga > 0 and wzrost > 0: # warunek, który sprawdza, czy zarówno waga jak i wzrost są większe od 0 
+            # Oblicza BMI zgodnie ze wzorem matematycznym i zapisuje wynik w zmiennej 'bmi'
+            bmi = waga / (wzrost ** 2) # wzór do obliczenia BMI - waga podzielona na wzrost do kwadratu, wszystko to zostaje zapisane w zmiennej 'BMI'
+            
+            st.metric(label="Twoje BMI wynosi", value=f"{bmi:.2f}")
+            
+            interpretacja = ""
+            color = ""
+            
+            if bmi < 16.0:
+                interpretacja = "wygłodzenie"
+                color = "error"
+            elif bmi < 17.0:
+                interpretacja = "wychudzenie"
+                color = "warning" 
+            elif bmi < 18.5:
+                interpretacja = "niedowaga"
+                color = "warning" 
+            elif bmi < 25.0:
+                interpretacja = "waga prawidłowa"
+                color = "success"
+            elif bmi < 30.0:
+                interpretacja = "nadwaga"
+                color = "warning"
+            elif bmi < 35.0:
+                interpretacja = "otyłość I stopnia"
+                color = "error"
+            elif bmi < 40.0:
+                interpretacja = "otyłość II stopnia"
+                color = "error"
+            else:
+                interpretacja = "otyłość III stopnia"
+                color = "error"
+            
+            if color == "success":
+                st.success(f"Interpretacja: {interpretacja}")
+            elif color == "warning":
+                st.warning(f"Interpretacja: {interpretacja}")
+            else:
+                st.error(f"Interpretacja: {interpretacja}")
+                
+        else:
+            st.error("Proszę uzupełnić wagę i wzrost wartościami większymi od zera.")
+
+# ZAKŁADKA 2: część Ani
+with tab2:
+    st.header("Ania")
+    st.info("tiruriru")
+
+# ZAKŁADKA 3: część Julki Vol2
+with tab3:
+    st.header("Julka Vol2")
+    st.info("bla bla")
+
+# ZAKŁADKA 4: część Zuzi
+with tab4:
+    st.header("Zuzia")
+    st.info("yap yap")
