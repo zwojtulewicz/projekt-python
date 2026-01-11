@@ -1,0 +1,113 @@
+class User:
+    def __init__(self, gender, age, weight, height, activity, restrictions, lifestyle, target):
+        self._gender = gender
+        self._age = age
+        self._weight = weight
+        self._height = height
+        self.activity = activity
+        self.restrictions = [r.casefold() for r in restrictions]
+        self._target = target
+
+    @property
+    def gender(self):
+        return self._gender
+
+    @gender.setter
+    def gender(self, g):
+        valid_gender = ["f", "m"]
+        if not isinstance(g, str) or g.casefold() not in valid_gender:
+            raise ValueError("Invalid gender")
+        self._gender = g.casefold()       
+
+    @property
+    def age(self):
+        return self._age
+
+    @age.setter
+    def age(self, a):
+        if not isinstance(a, int) or a <= 0 or a > 120:
+            raise ValueError("Invalid age")
+        self._age = a
+
+    @property
+    def weight(self):
+        return self._weight
+
+    @weight.setter
+    def weight(self, w):
+        if not isinstance(w, int) or w <= 0 or w > 600:
+            raise ValueError("Invalid weight")
+        self._weight = w
+
+    @property
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, h):
+        if not isinstance(h, int) or h <= 50 or h > 300:
+            raise ValueError("Invalid height")
+        self._height = h
+
+    @property
+    def target(self):
+        return self._target
+
+    @target.setter
+    def target(self, t):
+        valid_target = ["lose", "gain", "maintain"]
+        if not isinstance(t, str) or t.casefold() not in valid_target:
+            raise ValueError("Invalid input")
+        self._target = t.casefold()
+
+    def bmr(self):
+        if self.gender == "f":
+            bmr = (10 * self.weight) + (6.25 * self.height) - (5 * self.age) - 161
+        else:
+            bmr = (10 * self.weight) + (6.25 * self.height) - (5 * self.age) + 5
+        return bmr
+
+    def tdee(self):
+        tdee = self.bmr() * self.activity   
+        if self.target == "lose":
+            return round(tdee - 500)
+        elif self.target == "gain":
+            return round(tdee + 500)
+        elif self.target == "maintain":
+            return round(tdee)
+        
+    def macros(self):
+        cal = self.tdee()
+        if self.target == "lose":
+            p_ratio, f_ratio, c_ratio = 0.30, 0.25, 0.45
+        elif self.target == "gain":
+            p_ratio, f_ratio, c_ratio = 0.20, 0.20, 0.60
+        else:
+            p_ratio, f_ratio, c_ratio = 0.20, 0.30, 0.50
+        proteins = (cal * p_ratio) / 4
+        fats = (cal * f_ratio) / 9
+        carbs = (cal * c_ratio) / 4
+        return {
+            "Proteins (g)": round(proteins),
+            "Fats (g)": round(fats),
+            "Carbohydrates (g)": round(carbs)
+        }
+
+    def minerals(self):
+        suggestions = []
+        if self.target == "lose":
+            return "Monitor magnesium, B type vitamins, iron and iodine levels due to potential weight loss."
+        elif self.target == "gain":
+            return "Monitor zinc, calcium, D type vitamins, potassium and sodium levels due to potential weight gain."
+        elif self.target == "maintain":
+            return "For a healthy, balanced diet, monitor magnesium, potassium, B and D type vitamin levels and OMEGA-3 fats"
+
+    def recs(self):
+        m = self.macros()
+        sources = {
+            "Proteins": "lean meat (chicken, turkey, lean beef), fish, eggs, cottage cheese, greek yogurt, lentils, quinoa, tofu, beans, chickpeas",
+            "Fats": "olive oil, nuts (almonds, walnuts), avocado, chia seeds, pumpkin seeds, sunflower seeds, fish (salmon, trout, herring)",
+            "Carbohydrates": "buckwheat/millet groats, bulgur, brown rice, oats, wholegrain bread, wholegrain pasta, potatoes/sweet potatoes, blueberries, raspberries, strawberries, spinach, broccoli, kale"
+        }
+
+
