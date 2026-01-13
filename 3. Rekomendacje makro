@@ -125,7 +125,6 @@ with tab3:
 
     if st.button("Generuj Plan Dietetyczny", type="primary", key="btn_zuzia"):
         try:
-            # Tworzymy obiekt klasy User
             user = User(
                 gender=gender_val, 
                 age=int(age), 
@@ -140,9 +139,9 @@ with tab3:
             calculated_tdee = 
 
             st.markdown("---")
-            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{calculated_tdee} kcal**")
+            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{tdee_value} kcal**")
             
-            macros = user.macros(calculated_tdee)
+            macros = user.macros(tdee_value)
             c1, c2, c3 = st.columns(3)
             c1.metric("Białko", f"{macros['Białko (g)']} g")
             c2.metric("Tłuszcze", f"{macros['Tłuszcze (g)']} g")
