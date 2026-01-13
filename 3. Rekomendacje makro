@@ -60,7 +60,6 @@ class User:
         self._target = t.casefold()
         
     def macros(self, tdee_value):
-        cal = self.tdee()
         if self.target == "lose":
             p_ratio, f_ratio, c_ratio = 0.30, 0.25, 0.45
         elif self.target == "gain":
