@@ -59,7 +59,7 @@ class User:
             raise ValueError("Nieprawidłowy cel")
         self._target = t.casefold()
         
-    def macros(self):
+    def macros(self, tdee_value):
         cal = self.tdee()
         if self.target == "lose":
             p_ratio, f_ratio, c_ratio = 0.30, 0.25, 0.45
@@ -67,9 +67,9 @@ class User:
             p_ratio, f_ratio, c_ratio = 0.20, 0.20, 0.60
         else:
             p_ratio, f_ratio, c_ratio = 0.20, 0.30, 0.50
-        proteins = (cal * p_ratio) / 4
-        fats = (cal * f_ratio) / 9
-        carbs = (cal * c_ratio) / 4
+        proteins = (tdee_value * p_ratio) / 4
+        fats = (tdee_value * f_ratio) / 9
+        carbs = (tdee_value * c_ratio) / 4
         return {
             "Białko (g)": round(proteins),
             "Tłuszcze (g)": round(fats),
@@ -137,12 +137,13 @@ with tab3:
                 lifestyle=lifestyle, 
                 target=target_val
             )
+            
+            calculated_tdee = 
 
             st.markdown("---")
-            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{user.tdee()} kcal**")
+            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{calculated_tdee} kcal**")
             
-            # Wyświetlanie makroskładników w ładnych kolumnach
-            macros = user.macros()
+            macros = user.macros(calculated_tdee)
             c1, c2, c3 = st.columns(3)
             c1.metric("Białko", f"{macros['Białko (g)']} g")
             c2.metric("Tłuszcze", f"{macros['Tłuszcze (g)']} g")
