@@ -16,7 +16,7 @@ class User:
 
     @gender.setter
     def gender(self, g):
-        valid_gender = ["k", "m"]
+        valid_gender = ["f", "m"]
         if not isinstance(g, str) or g.casefold() not in valid_gender:
             raise ValueError("Nieprawidłowa płeć")
         self._gender = g.casefold()        
@@ -54,16 +54,16 @@ class User:
 
     @target.setter
     def target(self, t):
-        valid_target = ["schudnąć", "przytyć", "utrzymać"]
+        valid_target = ["lose", "gain", "maintain"]
         if not isinstance(t, str) or t.casefold() not in valid_target:
             raise ValueError("Nieprawidłowy cel")
         self._target = t.casefold()
         
     def macros(self):
         cal = self.tdee()
-        if self.target == "schudnąć":
+        if self.target == "lose":
             p_ratio, f_ratio, c_ratio = 0.30, 0.25, 0.45
-        elif self.target == "przytyć":
+        elif self.target == "gain":
             p_ratio, f_ratio, c_ratio = 0.20, 0.20, 0.60
         else:
             p_ratio, f_ratio, c_ratio = 0.20, 0.30, 0.50
@@ -77,11 +77,11 @@ class User:
         }
 
     def minerals(self):
-        if self.target == "schudnąć":
+        if self.target == "lose":
             return "Monitoruj poziom magnezu, witamin z grupy B, żelaza i jodu ze względu na deficyt kaloryczny."
-        elif self.target == "przytyć":
+        elif self.target == "gain":
             return "Monitoruj cynk, wapń, witaminę D, potas i sód."
-        elif self.target == "utrzymać":
+        elif self.target == "maintain":
             return "Dla zdrowej diety monitoruj magnez, potas, witaminy B i D oraz kwasy OMEGA-3."
 
     def recs(self):
@@ -99,7 +99,7 @@ with tab3:
 
     with col_z1:
         gender_display = st.selectbox("Płeć", ["Mężczyzna", "Kobieta"], key="z_plec")
-        gender_val = "m" if gender_display == "Mężczyzna" else "k"
+        gender_val = "m" if gender_display == "Mężczyzna" else "f"
         
         age = st.number_input("Wiek", min_value=1, max_value=120, value=25, step=1, key="z_wiek")
         
