@@ -120,7 +120,7 @@ def calculate_bmr_simple(gender, weight, height, age):
 st.title("Asystent Dietetyczny")
 tab1, tab2 = st.tabs(["Kalkulator BMR/TDEE", "Planer Dietetyczny"])
 
-#####zakladka 1#####
+##### zakladka 1 - zapotrzebowanie kaloryczne #####
 
 with tab1:
     st.header("Szybkie obliczenia")
@@ -143,7 +143,7 @@ with tab1:
         col_res1.metric("BMR", f"{bmr_val:.2f} kcal")
         col_res2.metric("TDEE", f"{tdee_val:.2f} kcal")
 
-#####zakladka 2#####
+##### zakladka 2 - rekomendacje mikro i makro #####
 
 with tab2:                    
     st.header("Planer Dietetyczny")
