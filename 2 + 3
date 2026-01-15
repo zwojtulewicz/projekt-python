@@ -1,6 +1,6 @@
 import streamlit as st
 
-#logika
+#####logika biznesowa musi byc na poczatku!!#####
 
 class User:
     def __init__(self, gender, age, weight, height, activity, restrictions, lifestyle, target):
@@ -115,12 +115,12 @@ def calculate_bmr_simple(gender, weight, height, age):
         return 10 * weight + 6.25 * height - 5 * age - 161
     return 10 * weight + 6.25 * height - 5 * age + 5
 
-#reprezentacja graficzna
+#####reprezentacja graficzna#####
 
 st.title("Asystent Dietetyczny")
 tab1, tab2 = st.tabs(["Kalkulator BMR/TDEE", "Planer Dietetyczny"])
 
-#zakladka 1
+#####zakladka 1#####
 
 with tab1:
     st.header("Szybkie obliczenia")
@@ -143,7 +143,7 @@ with tab1:
         col_res1.metric("BMR", f"{bmr_val:.2f} kcal")
         col_res2.metric("TDEE", f"{tdee_val:.2f} kcal")
 
-#zakladka 2
+#####zakladka 2#####
 
 with tab2:                    
     st.header("Planer Dietetyczny")
