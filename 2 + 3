@@ -1,15 +1,6 @@
 import streamlit as st
 
-###############TRZEBA UMIEŚCIĆ LOGIKĘ BIZNESOWĄ NA SAMYM POCZĄTKU KODU, ŻEBY BYŁA DOSTĘPNA DLA KAŻDEGO!!##############
-
-def calculate_bmr(gender: str, weight: float, height: float, age: int) -> float:
-    if gender.casefold() == "f":
-        return 10 * weight + 6.25 * height - 5 * age - 161
-    else:
-        return 10 * weight + 6.25 * height - 5 * age + 5
-
-def calculate_tdee(bmr_value: float, pal: float) -> float:
-    return bmr_value * pal
+#logika
 
 class User:
     def __init__(self, gender, age, weight, height, activity, restrictions, lifestyle, target):
@@ -23,9 +14,7 @@ class User:
         self.target = target
 
     @property
-    def gender(self): 
-        return self._gender
-
+    def gender(self): return self._gender
     @gender.setter
     def gender(self, g):
         valid_gender = ["f", "m"]
@@ -34,9 +23,7 @@ class User:
         self._gender = g.casefold()        
 
     @property
-    def age(self): 
-        return self._age
-
+    def age(self): return self._age
     @age.setter
     def age(self, a):
         if not isinstance(a, int) or a <= 0 or a > 120:
@@ -45,7 +32,6 @@ class User:
 
     @property
     def weight(self): return self._weight
-
     @weight.setter
     def weight(self, w):
         if w <= 0 or w > 600:
@@ -54,7 +40,6 @@ class User:
 
     @property
     def height(self): return self._height
-
     @height.setter
     def height(self, h):
         if h <= 50 or h > 300:
@@ -63,7 +48,6 @@ class User:
 
     @property
     def target(self): return self._target
-
     @target.setter
     def target(self, t):
         valid_target = ["lose", "gain", "maintain"]
@@ -71,6 +55,15 @@ class User:
             raise ValueError("Nieprawidłowy cel")
         self._target = t.casefold()
         
+    def calculate_bmr(self):
+        if self.gender == "f":
+            return 10 * self.weight + 6.25 * self.height - 5 * self.age - 161
+        else:
+            return 10 * self.weight + 6.25 * self.height - 5 * self.age + 5
+
+    def calculate_tdee(self):
+        return self.calculate_bmr() * self.activity
+
     def macros(self, tdee_value):
         if self.target == "lose":
             p_ratio, f_ratio, c_ratio = 0.30, 0.25, 0.45
@@ -78,6 +71,7 @@ class User:
             p_ratio, f_ratio, c_ratio = 0.20, 0.20, 0.60
         else:
             p_ratio, f_ratio, c_ratio = 0.20, 0.30, 0.50
+        
         proteins = (tdee_value * p_ratio) / 4
         fats = (tdee_value * f_ratio) / 9
         carbs = (tdee_value * c_ratio) / 4
@@ -92,7 +86,7 @@ class User:
             return "Monitoruj poziom magnezu, witamin z grupy B, żelaza i jodu ze względu na deficyt kaloryczny."
         elif self.target == "gain":
             return "Monitoruj cynk, wapń, witaminę D, potas i sód."
-        elif self.target == "maintain":
+        else:
             return "Dla zdrowej diety monitoruj magnez, potas, witaminy B i D oraz kwasy OMEGA-3."
 
     def recs(self):
@@ -104,7 +98,6 @@ class User:
             forbidden = ["kurczak", "indyk", "chuda wołowina", "ryby", "jajka", "twaróg", "jogurt grecki", "ryby morskie"]
             protein_list = [p for p in protein_list if p not in forbidden]
             fat_list = [p for p in fat_list if p not in forbidden]
-        
         elif "wegetariańska" in self.restrictions:
             forbidden = ["kurczak", "indyk", "chuda wołowina", "ryby", "ryby morskie"]
             protein_list = [p for p in protein_list if p not in forbidden]
@@ -115,71 +108,56 @@ class User:
             carb_list = [p for p in carb_list if p not in gluten]
             carb_list.extend(["chleb bezglutenowy", "makaron kukurydziany/ryżowy", "płatki jaglane"])
 
-        return {
-            "Białka": ", ".join(protein_list),
-            "Tłuszcze": ", ".join(fat_list),
-            "Węglowodany": ", ".join(carb_list)
-        }
+        return {"Białka": ", ".join(protein_list), "Tłuszcze": ", ".join(fat_list), "Węglowodany": ", ".join(carb_list)}
 
-tab2, tab3 = st.tabs(["Szybki Kalkulator", "Planer Dietetyczny"])
+def calculate_bmr_simple(gender, weight, height, age):
+    if gender == "Kobieta":
+        return 10 * weight + 6.25 * height - 5 * age - 161
+    return 10 * weight + 6.25 * height - 5 * age + 5
 
-###############ZAKŁADKA 2###############
-with tab2:
-    st.header("Szybki Kalkulator")
+#reprezentacja graficzna
 
-with st.sidebar:
-        st.header("Dane użytkownika")
-        s_gender = st.selectbox("Płeć", ["Kobieta", "Mężczyzna"], key="s_gender")
-        s_age = st.number_input("Wiek", min_value=1, max_value=120, value=25, key="s_age")
-        s_weight = st.number_input("Waga (kg)", min_value=10.0, max_value=300.0, value=70.0, step=0.1, key="s_weight")
-        s_height = st.number_input("Wzrost (cm)", min_value=50.0, max_value=250.0, value=170.0, step=0.1, key="s_height")
+st.title("Asystent Dietetyczny")
+tab1, tab2 = st.tabs(["Kalkulator BMR/TDEE", "Planer Dietetyczny"])
+
+#zakladka 1
+
+with tab1:
+    st.header("Szybkie obliczenia")
+    with st.container():
+        c1, c2 = st.columns(2)
+        with c1:
+            g = st.selectbox("Płeć", ["Kobieta", "Mężczyzna"], key="t1_g")
+            a = st.number_input("Wiek", 1, 120, 25, key="t1_a")
+        with c2:
+            w = st.number_input("Waga (kg)", 10.0, 300.0, 70.0, key="t1_w")
+            h = st.number_input("Wzrost (cm)", 50.0, 250.0, 170.0, key="t1_h")
         
-        s_pal = st.slider(
-            "Współczynnik aktywności (PAL)",
-            min_value=1.2,
-            max_value=2.4,
-            value=1.4,
-            step=0.1,
-            help="1.2: brak aktywności, 1.4-1.6: umiarkowana, 2.0+: bardzo wysoka",
-            key="s_pal"
-        )
+        p = st.slider("Aktywność (PAL)", 1.2, 2.4, 1.4, 0.1, key="t1_p")
 
-    st.write("Wprowadź dane w panelu bocznym i kliknij przycisk, aby obliczyć wynik.")
-    
-    if st.button("Oblicz BMR/TDEE", key="btn_juliach"):
-        s_gender_val = "f" if s_gender_display == "Kobieta" else "m"
-
-        bmr_val = calculate_bmr(s_gender, s_weight, s_height, s_age)
-        tdee_val = calculate_tdee(bmr_val, s_pal)
-
+    if st.button("Oblicz BMR i TDEE"):
+        bmr_val = calculate_bmr_simple(g, w, h, a)
+        tdee_val = bmr_val * p
         st.divider()
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric(label="BMR", value=f"{bmr_val:.2f} kcal")
-        with col2:
-            st.metric(label="TDEE", value=f"{tdee_val:.2f} kcal")
+        col_res1, col_res2 = st.columns(2)
+        col_res1.metric("BMR", f"{bmr_val:.2f} kcal")
+        col_res2.metric("TDEE", f"{tdee_val:.2f} kcal")
 
-        st.success(f"Aby utrzymać wagę, spożywaj **{int(tdee_val)} kcal** dziennie.")
+#zakladka 2
 
-###############ZAKŁADKA 3###############
-#otwiera 3 zakladke
-with tab3:                    
-    st.header("Planer Dietetyczny")  #ustawia naglowek
+with tab2:                    
+    st.header("Planer Dietetyczny")
     
-    col_z1, col_z2 = st.columns(2)  #dzieli ekran na kolumny
+    col_z1, col_z2 = st.columns(2) 
 
-#zawartosc 1 kolumny (lista rozwijana z plcia, pole numeryczne do wieku, wzrostu i wagi)
     with col_z1: 
         gender_display = st.selectbox("Płeć", ["Mężczyzna", "Kobieta"], key="z_plec")
-        gender_val = "m" if gender_display == "Mężczyzna" else "f"  #odnosi sie do wartosci okreslonych w klasie
+        gender_val = "m" if gender_display == "Mężczyzna" else "f" 
         
-        age = st.number_input("Wiek", min_value=1, max_value=120, value=25, step=1, key="z_wiek")  #domyslna wartosc: 25
-        
-        height = st.number_input("Wzrost (cm)", min_value=100, max_value=250, value=170, step=1, key="z_wzrost")  #domyslna wartosc: 170
-        weight_z = st.number_input("Waga (kg)", min_value=30.0, max_value=300.0, value=65.0, step=0.1, key="z_waga")  #domyslna wartosc: 65
+        age_z = st.number_input("Wiek", min_value=1, max_value=120, value=25, key="z_wiek")
+        height_z = st.number_input("Wzrost (cm)", min_value=100, max_value=250, value=170, key="z_wzrost")
+        weight_z = st.number_input("Waga (kg)", min_value=30.0, max_value=300.0, value=65.0, key="z_waga")
 
-#zawartosc 2 kolumny (slownik z opcjami aktywnosci i ich wartosciami ze wzoru matematycznego oraz wybor celu)
     with col_z2:
         activity_options = {
             "Brak ćwiczeń": 1.2,
@@ -187,49 +165,48 @@ with tab3:
             "Umiarkowana (3-5 dni)": 1.55,
             "Duża (6-7 dni)": 1.725
         }
-        act_key = st.selectbox("Aktywność", list(activity_options.keys()), key="z_akt")  #wyswietla klucze z listy
-        activity_val = activity_options[act_key]  #wyciaga wartosc liczbowa z kodu podporzadkowana pod klucz
+        act_key = st.selectbox("Aktywność", list(activity_options.keys()), key="z_akt")
+        activity_val = activity_options[act_key]
 
-        target_options = {"Schudnąć": "lose", "Utrzymać": "maintain", "Przytyć": "gain"}  #slownik podporzadkowany pod klase
-        tar_key = st.selectbox("Cel", list(target_options.keys()), key="z_cel")  #lista z wyborem celu
-        target_val = target_options[tar_key]  #wyciaga wartosc z kodu podporzadkowana pod klucz
+        target_options = {"Schudnąć": "lose", "Utrzymać": "maintain", "Przytyć": "gain"}
+        tar_key = st.selectbox("Cel", list(target_options.keys()), key="z_cel")
+        target_val = target_options[tar_key]
         
-        lifestyle = st.selectbox("Tryb pracy", ["Biurowa", "Fizyczna", "Mieszana"], key="z_praca")  #lista wyboru trybu pracy
+        lifestyle = st.selectbox("Tryb pracy", ["Biurowa", "Fizyczna", "Mieszana"], key="z_praca")
 
-    restrictions = st.multiselect("Restrykcje", ["Bezglutenowa", "Wegetariańska", "Wegańska"], key="z_restr")  #lista wyboru restrykcji zywieniowych
+    restrictions = st.multiselect("Restrykcje", ["Bezglutenowa", "Wegetariańska", "Wegańska"], key="z_restr")
 
-    if st.button("Generuj Plan Dietetyczny", type="primary", key="btn_zuzia"):  #przycisk uruchamiajacy kod
+    if st.button("Generuj Plan Dietetyczny", type="primary", key="btn_zuzia"):
         try:
+            # Tworzenie obiektu klasy User
             user = User(
                 gender=gender_val, 
-                age=int(age), 
+                age=int(age_z), 
                 weight=weight_z, 
-                height=int(height), 
+                height=int(height_z), 
                 activity=activity_val, 
                 restrictions=restrictions, 
                 lifestyle=lifestyle, 
                 target=target_val
-            )  #przekazanie danych do klasy, sprawdzenie czy nie ma errorow
+            )
             
-            bmr_calc = calculate_bmr(gender_val, weight_z, height, int(age))
-            tdee_value = calculate_tdee(bmr_calc, activity_val)
+            tdee_value = user.calculate_tdee()
 
-            st.markdown("---")  #linia oddzielajaca formularz od wynikow
-            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{tdee_value} kcal**")  #wyswietla wynik
+            st.markdown("---")
+            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{int(tdee_value)} kcal**")
             
-            macros = user.macros(tdee_value)  #uruchamia metode macros z klasy
-            c1, c2, c3 = st.columns(3)  #dzieli ekran na 3 kolumny, gdzie wyswietlaja sie wyniki pojedycznych makroelementow
+            macros = user.macros(tdee_value)
+            c1, c2, c3 = st.columns(3)
             c1.metric("Białko", f"{macros['Białko (g)']} g")
             c2.metric("Tłuszcze", f"{macros['Tłuszcze (g)']} g")
             c3.metric("Węglowodany", f"{macros['Węglowodany (g)']} g")
 
-            st.info(f"💡 Porada: {user.minerals()}")  #wyswietla porade odnosnie mikroelementow
+            st.info(f"💡 Porada: {user.minerals()}")
             
-            with st.expander("Zobacz polecane produkty"):  #tworzy rozwijana liste rekomendacji
-                recs = user.recs()  #pobiera liste rekomendowanych produktow z klasy
+            with st.expander("Zobacz polecane produkty"):
+                recs = user.recs()
                 for k, v in recs.items():
                     st.write(f"**{k}:** {v}")
 
-#jezeli input byl zly - blad
         except ValueError as e:  
             st.error(f"Błąd danych: {e}")
