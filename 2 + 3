@@ -1,6 +1,6 @@
 import streamlit as st
 
-#####logika biznesowa musi byc na poczatku!!#####
+##### logika biznesowa musi byc na poczatku!! #####
 
 class User:
     def __init__(self, gender, age, weight, height, activity, restrictions, lifestyle, target):
