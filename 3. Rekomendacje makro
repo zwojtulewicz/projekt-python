@@ -84,10 +84,29 @@ class User:
             return "Dla zdrowej diety monitoruj magnez, potas, witaminy B i D oraz kwasy OMEGA-3."
 
     def recs(self):
+        protein_list = ["kurczak", "indyk", "chuda wołowina", "ryby", "jajka", "twaróg", "jogurt grecki", "soczewica", "quinoa", "fasola", "ciecierzyca", "tofu"]
+        fat_list = ["oliwa", "orzechy (migdały, włoskie)", "awokado", "nasiona chia", "pestki dyni", "ryby morskie"]
+        carb_list = ["kasze", "brązowy ryż", "owies", "chleb pełnoziarnisty", "makaron pełnoziarnisty", "ziemniaki", "bataty", "owoce", "warzywa"]
+    
+        if "wegańska" in self.restrictions:
+            forbidden = ["kurczak", "indyk", "chuda wołowina", "ryby", "jajka", "twaróg", "jogurt grecki", "ryby morskie"]
+            protein_list = [p for p in protein_list if p not in forbidden]
+            fat_list = [p for p in fat_list if p not in forbidden]
+        
+        elif "wegetariańska" in self.restrictions:
+            forbidden = ["kurczak", "indyk", "chuda wołowina", "ryby", "ryby morskie"]
+            protein_list = [p for p in protein_list if p not in forbidden]
+            fat_list = [p for p in fat_list if p not in forbidden]
+
+        if "bezglutenowa" in self.restrictions:
+            gluten = ["owies", "chleb pełnoziarnisty", "makaron pełnoziarnisty"]
+            carb_list = [p for p in carb_list if p not in gluten]
+            carb_list.extend(["chleb bezglutenowy", "makaron kukurydziany/ryżowy", "płatki jaglane"])
+
         return {
-            "Białka": "chude mięso (kurczak, indyk, chuda wołowina), ryby, jajka, twaróg, jogurt grecki, soczewica, quinoa, fasola, ciecierzyca, tofu",
-            "Tłuszcze": "oliwa, orzechy (migdały, włoskie), awokado, nasiona chia, pestki dyni i słonecznika, ryby morskie",
-            "Węglowodany": "kasze, brązowy ryż, owies, chleb pełnoziarnisty, makaron pełnoziarnisty, ziemniaki, bataty, owoce (borówki, truskawki, maliny), warzywa (szpinak, brokuł, jarmuż)"
+            "Białka": ", ".join(protein_list),
+            "Tłuszcze": ", ".join(fat_list),
+            "Węglowodany": ", ".join(carb_list)
         }
 
 
