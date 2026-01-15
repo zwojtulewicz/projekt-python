@@ -1,24 +1,47 @@
-gender = input("Enter your gender (f/m): ").strip().lower()
-pal = float(input("Enter your PAL (e.g., 1.2–2.4): "))
-weight = float(input("Enter your weight in kilograms: "))
-height = float(input("Enter your height in centimeters: "))
-age = int(input("Enter your age: "))
+# Zakładka
+tab1, = st.tabs(["Kalkulator przemiany materii oraz minimalnego zapotrzebowania kalorycznego"])
 
-#Basal Metabolic Rate
-def bmr(gender: str, weight: float, height: float, age: int) -> float:
-    if gender == "f":
+# Obliczenia
+def calculate_bmr(gender: str, weight: float, height: float, age: int) -> float:
+    if gender == "Kobieta":
         return 10 * weight + 6.25 * height - 5 * age - 161
-    elif gender == "m":
-        return 10 * weight + 6.25 * height - 5 * age + 5
     else:
-        raise ValueError("Invalid gender. Use 'f' for female or 'm' for male.")
+        return 10 * weight + 6.25 * height - 5 * age + 5
 
-#Total Daily Energy Expenditure
-def tdee(bmr_value: float, pal: float) -> float:
+def calculate_tdee(bmr_value: float, pal: float) -> float:
     return bmr_value * pal
 
-bmr_value = bmr(gender, weight, height, age)
-tdee_value = tdee(bmr_value, pal)
+# Pasek boczny
+with st.sidebar:
+    st.header("Dane użytkownika")
+    gender = st.selectbox("Płeć", ["Kobieta", "Mężczyzna"])
+    age = st.number_input("Wiek", min_value=1, max_value=120, value=25)
+    weight = st.number_input("Waga (kg)", min_value=10.0, max_value=300.0, value=70.0, step=0.1)
+    height = st.number_input("Wzrost (cm)", min_value=50.0, max_value=250.0, value=170.0, step=0.1)
+   
+    pal = st.slider(
+        "Współczynnik aktywności (PAL)",
+        min_value=1.2,
+        max_value=2.4,
+        value=1.4,
+        step=0.1,
+        help="1.2: brak aktywności, 1.4-1.6: umiarkowana, 2.0+: bardzo wysoka"
+    )
 
-print(f"BMR: {bmr_value:.2f} kcal/day")
-print(f"TDEE: {tdee_value:.2f} kcal/day")
+# Kalkulator
+with tab1:
+    st.write("Wprowadź dane w panelu bocznym i kliknij przycisk, aby obliczyć wynik.")
+   
+    if st.button("Oblicz"):
+        bmr_val = calculate_bmr(gender, weight, height, age)
+        tdee_val = calculate_tdee(bmr_val, pal)
+
+        st.divider()
+       
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(label="BMR", value=f"{bmr_val:.2f} kcal")
+        with col2:
+            st.metric(label="TDEE", value=f"{tdee_val:.2f} kcal")
+
+        st.success(f"Aby utrzymać wagę, spożywaj **{int(tdee_val)} kcal** dziennie.")
