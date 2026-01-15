@@ -1,7 +1,9 @@
+import streamlit as st
+
 ###############TRZEBA UMIEŚCIĆ LOGIKĘ BIZNESOWĄ NA SAMYM POCZĄTKU KODU, ŻEBY BYŁA DOSTĘPNA DLA KAŻDEGO!!##############
 
 def calculate_bmr(gender: str, weight: float, height: float, age: int) -> float:
-    if gender == "f":
+    if gender.casefold() == "f":
         return 10 * weight + 6.25 * height - 5 * age - 161
     else:
         return 10 * weight + 6.25 * height - 5 * age + 5
@@ -143,6 +145,8 @@ with st.sidebar:
     st.write("Wprowadź dane w panelu bocznym i kliknij przycisk, aby obliczyć wynik.")
     
     if st.button("Oblicz BMR/TDEE", key="btn_juliach"):
+        s_gender_val = "f" if s_gender_display == "Kobieta" else "m"
+
         bmr_val = calculate_bmr(s_gender, s_weight, s_height, s_age)
         tdee_val = calculate_tdee(bmr_val, s_pal)
 
@@ -205,7 +209,7 @@ with tab3:
                 target=target_val
             )  #przekazanie danych do klasy, sprawdzenie czy nie ma errorow
             
-            bmr_calc = calculate_bmr(gender_display, weight_z, height, int(age))
+            bmr_calc = calculate_bmr(gender_val, weight_z, height, int(age))
             tdee_value = calculate_tdee(bmr_calc, activity_val)
 
             st.markdown("---")  #linia oddzielajaca formularz od wynikow
