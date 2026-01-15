@@ -140,8 +140,8 @@ with tab1:
         tdee_val = bmr_val * p
         st.divider()
         col_res1, col_res2 = st.columns(2)
-        col_res1.metric("BMR", f"{bmr_val:.2f} kcal")
-        col_res2.metric("TDEE", f"{tdee_val:.2f} kcal")
+        col_res1.metric("Podstawowa przemiana materii:", f"{bmr_val:.2f} kcal")
+        col_res2.metric("Całkowite dzienne zapotrzebowanie kaloryczne:", f"{tdee_val:.2f} kcal")
 
 ##### zakladka 2 - rekomendacje mikro i makro #####
 
