@@ -30,42 +30,42 @@ with tab1:
             
             st.metric(label="Twoje BMI wynosi", value=f"{bmi:.2f}")
             
-            interpretacja = ""
-            color = ""
+            interpretacja = "" # tworzy pustą zmienną tekstową, do której na podstawie wyniku obliczeń przypisana zostanie interpretacja
+            color = "" # tworzy pustą zmienną, która pozwoli nam później zmienić kolor wyświetlanego komunikatu na podstawie wyniku kalkulatora 
             
-            if bmi < 16.0:
+            if bmi < 16.0: # sprawdza, czy BMI jest mniejsze od 16 i przypisuje temu odpowiednią interpretację
                 interpretacja = "wygłodzenie"
-                color = "error"
-            elif bmi < 17.0:
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            elif bmi < 17.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 16, ale mniejsze o od 17 i przypisuje temu odpowiednią interpretację
                 interpretacja = "wychudzenie"
-                color = "warning" 
-            elif bmi < 18.5:
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 18.5: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 17, ale mniejsze o od 18.5 i przypisuje temu odpowiednią interpretację
                 interpretacja = "niedowaga"
-                color = "warning" 
-            elif bmi < 25.0:
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 25.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 18.5, ale mniejsze o od 25 i przypisuje temu odpowiednią interpretację
                 interpretacja = "waga prawidłowa"
-                color = "success"
-            elif bmi < 30.0:
+                color = "success" # ustawia flagę koloru na "success", co w języku streamlit oznacza zielony
+            elif bmi < 30.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 25, ale mniejsze o od 30 i przypisuje temu odpowiednią interpretację
                 interpretacja = "nadwaga"
-                color = "warning"
-            elif bmi < 35.0:
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 35.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 30, ale mniejsze o od 35 i przypisuje temu odpowiednią interpretację
                 interpretacja = "otyłość I stopnia"
-                color = "error"
-            elif bmi < 40.0:
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            elif bmi < 40.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 35, ale mniejsze o od 40 i przypisuje temu odpowiednią interpretację
                 interpretacja = "otyłość II stopnia"
-                color = "error"
-            else:
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            else: # jeżeli powyższy warunek jest niespełniony else zajmuje się wszystkimi przypadkami gdzie BMI jest większe lub równe 40
                 interpretacja = "otyłość III stopnia"
-                color = "error"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
             
-            if color == "success":
+            if color == "success": # wyświetla zielony pasek "sukcesu" z tekstem interpretacji
                 st.success(f"Interpretacja: {interpretacja}")
-            elif color == "warning":
+            elif color == "warning": # wyświetla pomarańczowy pasek "ostrzeżenia" z tekstem interpretacji
                 st.warning(f"Interpretacja: {interpretacja}")
-            else:
+            else: # wyświetla czerwony "błędu" z tekstem interpretacji
                 st.error(f"Interpretacja: {interpretacja}")
                 
-        else:
+        else: # to else zajmuje się przypadkiem, gdzie dane są równe 0, wyświetla komunikat błędu, który informuje że dane muszą zostać uzupełnione 
             st.error("Proszę uzupełnić wagę i wzrost wartościami większymi od zera.")
 
 # ZAKŁADKA 2: część Ani
