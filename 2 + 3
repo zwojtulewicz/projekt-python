@@ -121,6 +121,8 @@ class User:
             "Węglowodany": ", ".join(carb_list)
         }
 
+tab2, tab3 = st.tabs(["Szybki Kalkulator", "Planer Dietetyczny"])
+
 ###############ZAKŁADKA 2###############
 with tab2:
     st.header("Szybki Kalkulator")
