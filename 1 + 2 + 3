@@ -1,68 +1,5 @@
 import streamlit as st # importuję bibliotekę streamlit do interpretacji graficznej w postaci strony internetowej działającej lokalnie
 
-st.title("🌱 Asystent Zdrowego Żywienia") # tytuł aplikacji
-st.write("Witaj w kompleksowym systemie wsparcia dietetycznego.") # podtytuł/pierwszy komunikat dla użytkownika
-
-st.header("Kalkulator BMI") # nagłówek zakładki
-    
-    col1, col2 = st.columns(2) # określenie liczby "kolumn", powoduje to, że wizualnie okienka do wpisania wagi i wzrostu będą wyświetlane obok siebie
-    
-    with col1:
-        # definiuje jak wyglądać będzie pierwsza część zakładki kalkulatora BMI - jest to numeryczny input wagi użytkownika, min_value określa minimalną wartość (w tym przypadku większą od 0),
-        # step pozwala na operację strzałkami +/-, gdzie każde kliknięcie zmienia wartość w okienku o 0.1
-        waga = st.number_input("Podaj wagę (kg)", min_value=0.0, step=0.1) # całość zapisana jest w zmiennej 'waga'
-
-    with col2:
-        # definiuje jak wyglądać będzie druga część zakładki kalkulatora BMI - jest to numeryczny input wzrostu użytkownika, min_value określa minimalną wartość (w tym przypadku większą od 0),
-        # step pozwala na operację strzałkami +/-, gdzie każde kliknięcie zmienia wartość w okienku o 0.1,
-        # dodatkowo uwzględniony jest konkretny format, który wymusi wyświetlenie wartości z zaokrągleniem do 2 miesjc po przecinku
-        wzrost = st.number_input("Podaj wzrost (m)", min_value=0.0, step=0.01, format="%.2f") # całość zapisana jest w zmiennej wzrost
-
-    if st.button("Oblicz moje BMI"): # uwtorzenie przycisku do wywołania dalszej części kodu
-        if waga > 0 and wzrost > 0: # warunek, który sprawdza, czy zarówno waga jak i wzrost są większe od 0 
-            # Oblicza BMI zgodnie ze wzorem matematycznym i zapisuje wynik w zmiennej 'bmi'
-            bmi = waga / (wzrost ** 2) # wzór do obliczenia BMI - waga podzielona na wzrost do kwadratu, wszystko to zostaje zapisane w zmiennej 'BMI'
-            
-            st.metric(label="Twoje BMI wynosi", value=f"{bmi:.2f}")
-            
-            interpretacja = "" # tworzy pustą zmienną tekstową, do której na podstawie wyniku obliczeń przypisana zostanie interpretacja
-            color = "" # tworzy pustą zmienną, która pozwoli nam później zmienić kolor wyświetlanego komunikatu na podstawie wyniku kalkulatora 
-            
-            if bmi < 16.0: # sprawdza, czy BMI jest mniejsze od 16 i przypisuje temu odpowiednią interpretację
-                interpretacja = "wygłodzenie"
-                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
-            elif bmi < 17.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 16, ale mniejsze o od 17 i przypisuje temu odpowiednią interpretację
-                interpretacja = "wychudzenie"
-                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
-            elif bmi < 18.5: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 17, ale mniejsze o od 18.5 i przypisuje temu odpowiednią interpretację
-                interpretacja = "niedowaga"
-                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
-            elif bmi < 25.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 18.5, ale mniejsze o od 25 i przypisuje temu odpowiednią interpretację
-                interpretacja = "waga prawidłowa"
-                color = "success" # ustawia flagę koloru na "success", co w języku streamlit oznacza zielony
-            elif bmi < 30.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 25, ale mniejsze o od 30 i przypisuje temu odpowiednią interpretację
-                interpretacja = "nadwaga"
-                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
-            elif bmi < 35.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 30, ale mniejsze o od 35 i przypisuje temu odpowiednią interpretację
-                interpretacja = "otyłość I stopnia"
-                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
-            elif bmi < 40.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 35, ale mniejsze o od 40 i przypisuje temu odpowiednią interpretację
-                interpretacja = "otyłość II stopnia"
-                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
-            else: # jeżeli powyższy warunek jest niespełniony else zajmuje się wszystkimi przypadkami gdzie BMI jest większe lub równe 40
-                interpretacja = "otyłość III stopnia"
-                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
-            
-            if color == "success": # wyświetla zielony pasek "sukcesu" z tekstem interpretacji
-                st.success(f"Interpretacja: {interpretacja}")
-            elif color == "warning": # wyświetla pomarańczowy pasek "ostrzeżenia" z tekstem interpretacji
-                st.warning(f"Interpretacja: {interpretacja}")
-            else: # wyświetla czerwony "błędu" z tekstem interpretacji
-                st.error(f"Interpretacja: {interpretacja}")
-                
-        else: # to else zajmuje się przypadkiem, gdzie dane są równe 0, wyświetla komunikat błędu, który informuje że dane muszą zostać uzupełnione 
-            st.error("Proszę uzupełnić wagę i wzrost wartościami większymi od zera.")
-
 ##### logika biznesowa musi byc na poczatku!! #####
 
 class User:
@@ -180,12 +117,78 @@ def calculate_bmr_simple(gender, weight, height, age):
 
 ##### reprezentacja graficzna #####
 
-st.title("Asystent Dietetyczny")
-tab1, tab2 = st.tabs(["Kalkulator BMR/TDEE", "Planer Dietetyczny"])
+st.title("🌱 Asystent Zdrowego Żywienia") # tytuł aplikacji
+st.write("Witaj w kompleksowym systemie wsparcia dietetycznego.") # podtytuł/pierwszy komunikat dla użytkownika
 
-##### zakladka 1 - zapotrzebowanie kaloryczne #####
+# Zdefiniowanie wspólnych zakładek dla wszystkich funkcjonalności
+tab1, tab2, tab3 = st.tabs(["Kalkulator BMI", "Kalkulator BMR/TDEE", "Planer Dietetyczny"])
+
+##### zakladka 1 - Kalkulator BMI #####
 
 with tab1:
+    st.header("Kalkulator BMI") # nagłówek zakładki
+
+    col1, col2 = st.columns(2) # określenie liczby "kolumn", powoduje to, że wizualnie okienka do wpisania wagi i wzrostu będą wyświetlane obok siebie
+
+    with col1:
+        # definiuje jak wyglądać będzie pierwsza część zakładki kalkulatora BMI - jest to numeryczny input wagi użytkownika, min_value określa minimalną wartość (w tym przypadku większą od 0),
+        # step pozwala na operację strzałkami +/-, gdzie każde kliknięcie zmienia wartość w okienku o 0.1
+        waga = st.number_input("Podaj wagę (kg)", min_value=0.0, step=0.1, key="bmi_waga") # całość zapisana jest w zmiennej 'waga'
+
+    with col2:
+        # definiuje jak wyglądać będzie druga część zakładki kalkulatora BMI - jest to numeryczny input wzrostu użytkownika, min_value określa minimalną wartość (w tym przypadku większą od 0),
+        # step pozwala na operację strzałkami +/-, gdzie każde kliknięcie zmienia wartość w okienku o 0.1,
+        # dodatkowo uwzględniony jest konkretny format, który wymusi wyświetlenie wartości z zaokrągleniem do 2 miesjc po przecinku
+        wzrost = st.number_input("Podaj wzrost (m)", min_value=0.0, step=0.01, format="%.2f", key="bmi_wzrost") # całość zapisana jest w zmiennej wzrost
+
+    if st.button("Oblicz moje BMI"): # uwtorzenie przycisku do wywołania dalszej części kodu
+        if waga > 0 and wzrost > 0: # warunek, który sprawdza, czy zarówno waga jak i wzrost są większe od 0 
+            # oblicza BMI zgodnie ze wzorem matematycznym i zapisuje wynik w zmiennej 'bmi'
+            bmi = waga / (wzrost ** 2) # wzór do obliczenia BMI - waga podzielona na wzrost do kwadratu, wszystko to zostaje zapisane w zmiennej 'BMI'
+            
+            st.metric(label="Twoje BMI wynosi", value=f"{bmi:.2f}")
+            
+            interpretacja = "" # tworzy pustą zmienną tekstową, do której na podstawie wyniku obliczeń przypisana zostanie interpretacja
+            color = "" # tworzy pustą zmienną, która pozwoli nam później zmienić kolor wyświetlanego komunikatu na podstawie wyniku kalkulatora 
+            
+            if bmi < 16.0: # sprawdza, czy BMI jest mniejsze od 16 i przypisuje temu odpowiednią interpretację
+                interpretacja = "wygłodzenie"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            elif bmi < 17.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 16, ale mniejsze o od 17 i przypisuje temu odpowiednią interpretację
+                interpretacja = "wychudzenie"
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 18.5: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 17, ale mniejsze o od 18.5 i przypisuje temu odpowiednią interpretację
+                interpretacja = "niedowaga"
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 25.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 18.5, ale mniejsze o od 25 i przypisuje temu odpowiednią interpretację
+                interpretacja = "waga prawidłowa"
+                color = "success" # ustawia flagę koloru na "success", co w języku streamlit oznacza zielony
+            elif bmi < 30.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 25, ale mniejsze o od 30 i przypisuje temu odpowiednią interpretację
+                interpretacja = "nadwaga"
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 35.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 30, ale mniejsze o od 35 i przypisuje temu odpowiednią interpretację
+                interpretacja = "otyłość I stopnia"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            elif bmi < 40.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 35, ale mniejsze o od 40 i przypisuje temu odpowiednią interpretację
+                interpretacja = "otyłość II stopnia"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            else: # jeżeli powyższy warunek jest niespełniony else zajmuje się wszystkimi przypadkami gdzie BMI jest większe lub równe 40
+                interpretacja = "otyłość III stopnia"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            
+            if color == "success": # wyświetla zielony pasek "sukcesu" z tekstem interpretacji
+                st.success(f"Interpretacja: {interpretacja}")
+            elif color == "warning": # wyświetla pomarańczowy pasek "ostrzeżenia" z tekstem interpretacji
+                st.warning(f"Interpretacja: {interpretacja}")
+            else: # wyświetla czerwony "błędu" z tekstem interpretacji
+                st.error(f"Interpretacja: {interpretacja}")
+                
+        else: # to else zajmuje się przypadkiem, gdzie dane są równe 0, wyświetla komunikat błędu, który informuje że dane muszą zostać uzupełnione 
+            st.error("Proszę uzupełnić wagę i wzrost wartościami większymi od zera.")
+
+##### zakladka 2 - zapotrzebowanie kaloryczne #####
+
+with tab2:
     st.header("Szybkie obliczenia")
     with st.container():
         c1, c2 = st.columns(2)
@@ -206,9 +209,9 @@ with tab1:
         col_res1.metric("Podstawowa przemiana materii:", f"{bmr_val:.2f} kcal")
         col_res2.metric("Całkowite dzienne zapotrzebowanie kaloryczne:", f"{tdee_val:.2f} kcal")
 
-##### zakladka 2 - rekomendacje mikro i makro #####
+##### zakladka 3 - rekomendacje mikro i makro #####
 
-with tab2:                    
+with tab3:                    
     st.header("Planer Dietetyczny")
     
     col_z1, col_z2 = st.columns(2) 
@@ -258,17 +261,17 @@ with tab2:
             st.markdown("---")
             st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{int(tdee_value)} kcal**")
             
-            macros = user.macros(tdee_value)
+            macros_res = user.macros(tdee_value)
             c1, c2, c3 = st.columns(3)
-            c1.metric("Białko", f"{macros['Białko (g)']} g")
-            c2.metric("Tłuszcze", f"{macros['Tłuszcze (g)']} g")
-            c3.metric("Węglowodany", f"{macros['Węglowodany (g)']} g")
+            c1.metric("Białko", f"{macros_res['Białko (g)']} g")
+            c2.metric("Tłuszcze", f"{macros_res['Tłuszcze (g)']} g")
+            c3.metric("Węglowodany", f"{macros_res['Węglowodany (g)']} g")
 
             st.info(f"💡 Porada: {user.minerals()}")
             
             with st.expander("Zobacz polecane produkty"):
-                recs = user.recs()
-                for k, v in recs.items():
+                recs_res = user.recs()
+                for k, v in recs_res.items():
                     st.write(f"**{k}:** {v}")
 
         except ValueError as e:  
