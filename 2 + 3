@@ -3,7 +3,7 @@ import streamlit as st # importuję bibliotekę streamlit do interpretacji grafi
 st.title("🌱 Asystent Zdrowego Żywienia") # tytuł aplikacji
 st.write("Witaj w kompleksowym systemie wsparcia dietetycznego.") # podtytuł/pierwszy komunikat dla użytkownika
 
-tab1, tab2, tab3, tab4 = st.tabs(["Kalkulator BMI", "Szybkie Obliczenia", "Planer Dietetyczny", ""]) # zdefiniowanie zakładek i ich tytułów
+tab1 = st.tabs(["Kalkulator BMI"]) # zdefiniowanie zakładki i jej tytułu
 
 # Zakładka nr.1 - kalkulator BMI
 
