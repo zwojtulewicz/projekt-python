@@ -259,7 +259,7 @@ with tab3:
                 target=target_val
             )  #przekazanie danych do klasy, sprawdzenie czy nie ma errorów
             
-            tdee_value = user.calculate_tdee()  #wywołuje funkcje kalkulatora tdee z klasy User
+            tdee_value = user.calculate_tdee()  #wywołuje funkcję kalkulatora tdee z klasy User
 
             st.markdown("---")  #linia oddzielająca formularz od wyników  
             st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{int(tdee_value)} kcal**")  #wyświetla wynik
