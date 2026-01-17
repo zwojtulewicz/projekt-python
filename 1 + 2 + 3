@@ -212,18 +212,21 @@ with tab2:
 ##### zakladka 3 - rekomendacje mikro i makro #####
 
 with tab3:                    
-    st.header("Planer Dietetyczny")
+    st.header("Planer Dietetyczny")  #ustawia nagłówek
     
-    col_z1, col_z2 = st.columns(2) 
+    col_z1, col_z2 = st.columns(2)  #dzieli ekran na kolumny
 
+#zawartość 1 kolumny (lista rozwijana z płcią, pole numeryczne do wieku, wzrostu i wagi)
     with col_z1: 
         gender_display = st.selectbox("Płeć", ["Mężczyzna", "Kobieta"], key="z_plec")
-        gender_val = "m" if gender_display == "Mężczyzna" else "f" 
+        gender_val = "m" if gender_display == "Mężczyzna" else "f"  #odnosi się do wartości określonych w klasie
         
-        age_z = st.number_input("Wiek", min_value=1, max_value=120, value=25, key="z_wiek")
-        height_z = st.number_input("Wzrost (cm)", min_value=100, max_value=250, value=170, key="z_wzrost")
-        weight_z = st.number_input("Waga (kg)", min_value=30.0, max_value=300.0, value=65.0, key="z_waga")
+        age_z = st.number_input("Wiek", min_value=1, max_value=120, value=25, key="z_wiek")  #domyślna wartość: 25
 
+        height_z = st.number_input("Wzrost (cm)", min_value=100, max_value=250, value=170, key="z_wzrost")  #domyślna wartość: 170
+        weight_z = st.number_input("Waga (kg)", min_value=30.0, max_value=300.0, value=65.0, key="z_waga")  #domyślna wartość: 65
+
+#zawartość 2 kolumny (słownik z opcjami aktywności i ich wartościami ze wzoru matematycznego oraz wybór celu)
     with col_z2:
         activity_options = {
             "Brak ćwiczeń": 1.2,
@@ -231,18 +234,18 @@ with tab3:
             "Umiarkowana (3-5 dni)": 1.55,
             "Duża (6-7 dni)": 1.725
         }
-        act_key = st.selectbox("Aktywność", list(activity_options.keys()), key="z_akt")
-        activity_val = activity_options[act_key]
+        act_key = st.selectbox("Aktywność", list(activity_options.keys()), key="z_akt")  #wyświetla klucze z listy
+        activity_val = activity_options[act_key]  #wyciąga wartość liczbową z kodu podporządkowaną pod klucz
 
-        target_options = {"Schudnąć": "lose", "Utrzymać": "maintain", "Przytyć": "gain"}
-        tar_key = st.selectbox("Cel", list(target_options.keys()), key="z_cel")
-        target_val = target_options[tar_key]
+        target_options = {"Schudnąć": "lose", "Utrzymać": "maintain", "Przytyć": "gain"}  #słownik podporządkowany pod klasę
+        tar_key = st.selectbox("Cel", list(target_options.keys()), key="z_cel")  #lista z wyborem celu
+        target_val = target_options[tar_key]  #wyciąga wartość z kodu podporządkowaną pod klucz
         
-        lifestyle = st.selectbox("Tryb pracy", ["Biurowa", "Fizyczna", "Mieszana"], key="z_praca")
+        lifestyle = st.selectbox("Tryb pracy", ["Biurowa", "Fizyczna", "Mieszana"], key="z_praca")  #lista wyboru trybu pracy
 
-    restrictions = st.multiselect("Restrykcje", ["Bezglutenowa", "Wegetariańska", "Wegańska"], key="z_restr")
+    restrictions = st.multiselect("Restrykcje", ["Bezglutenowa", "Wegetariańska", "Wegańska"], key="z_restr")  #lista wyboru restrykcji żywieniowych
 
-    if st.button("Generuj Plan Dietetyczny", type="primary", key="btn_zuzia"):
+    if st.button("Generuj Plan Dietetyczny", type="primary", key="btn_zuzia"):  #przycisk uruchamiający kod
         try:
             # Tworzenie obiektu klasy User
             user = User(
@@ -254,25 +257,26 @@ with tab3:
                 restrictions=restrictions, 
                 lifestyle=lifestyle, 
                 target=target_val
-            )
+            )  #przekazanie danych do klasy, sprawdzenie czy nie ma errorów
             
-            tdee_value = user.calculate_tdee()
+            tdee_value = user.calculate_tdee()  #wywołuje funkcje kalkulatora tdee z klasy User
 
-            st.markdown("---")
-            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{int(tdee_value)} kcal**")
+            st.markdown("---")  #linia oddzielająca formularz od wyników  
+            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{int(tdee_value)} kcal**")  #wyświetla wynik
             
-            macros_res = user.macros(tdee_value)
-            c1, c2, c3 = st.columns(3)
+            macros_res = user.macros(tdee_value)  #uruchamia metodę macros z klasy
+            c1, c2, c3 = st.columns(3)  #dzieli ekran na 3 kolumny, gdzie wyświetlają się wyniki pojedyńczych makroelementów
             c1.metric("Białko", f"{macros_res['Białko (g)']} g")
             c2.metric("Tłuszcze", f"{macros_res['Tłuszcze (g)']} g")
             c3.metric("Węglowodany", f"{macros_res['Węglowodany (g)']} g")
 
-            st.info(f"💡 Porada: {user.minerals()}")
+            st.info(f"💡 Porada: {user.minerals()}")  #wyświetla poradę odnośnie mikroelementów
             
-            with st.expander("Zobacz polecane produkty"):
-                recs_res = user.recs()
+            with st.expander("Zobacz polecane produkty"):  #tworzy rozwijaną listę rekomendacji
+                recs_res = user.recs()  #pobiera listę rekomendowanych produktów z klasy
                 for k, v in recs_res.items():
                     st.write(f"**{k}:** {v}")
 
+#jeżeli input był zły - błąd
         except ValueError as e:  
             st.error(f"Błąd danych: {e}")
