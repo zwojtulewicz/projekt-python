@@ -54,12 +54,16 @@ class User:
         if not isinstance(t, str) or t.casefold() not in valid_target:
             raise ValueError("Nieprawidłowy cel")
         self._target = t.casefold()
-        
+
+    #kalkulator podstawowej przemiany materii
+
     def calculate_bmr(self):
         if self.gender == "f":
             return 10 * self.weight + 6.25 * self.height - 5 * self.age - 161
         else:
             return 10 * self.weight + 6.25 * self.height - 5 * self.age + 5
+
+    #kalkulator zapotrzebowania kalorycznego
 
     def calculate_tdee(self):
         return self.calculate_bmr() * self.activity
@@ -109,6 +113,8 @@ class User:
             carb_list.extend(["chleb bezglutenowy", "makaron kukurydziany/ryżowy", "płatki jaglane"])
 
         return {"Białka": ", ".join(protein_list), "Tłuszcze": ", ".join(fat_list), "Węglowodany": ", ".join(carb_list)}
+
+#funkcja - kalkulator podstawowej przemiany materii
 
 def calculate_bmr_simple(gender, weight, height, age):
     if gender == "Kobieta":
@@ -186,21 +192,25 @@ with tab1:
         else: # to else zajmuje się przypadkiem, gdzie dane są równe 0, wyświetla komunikat błędu, który informuje że dane muszą zostać uzupełnione 
             st.error("Proszę uzupełnić wagę i wzrost wartościami większymi od zera.")
 
-##### zakladka 2 - zapotrzebowanie kaloryczne #####
+##### zakladka 2 - podstawowa przemiana materii i zapotrzebowanie kaloryczne #####
 
 with tab2:
     st.header("Szybkie obliczenia")
     with st.container():
         c1, c2 = st.columns(2)
+        #użytkownik podaje swoją płeć  - pierwsza kolumna
         with c1:
             g = st.selectbox("Płeć", ["Kobieta", "Mężczyzna"], key="t1_g")
             a = st.number_input("Wiek", 1, 120, 25, key="t1_a")
+        #użytkownik podaje swoją wagę - druga kolumna
         with c2:
             w = st.number_input("Waga (kg)", 10.0, 300.0, 70.0, key="t1_w")
             h = st.number_input("Wzrost (cm)", 50.0, 250.0, 170.0, key="t1_h")
         
+        #użytkownik wskazuje swoją aktywność fizyczną - 1 oznacza brak aktywności
         p = st.slider("Aktywność (PAL)", 1.2, 2.4, 1.4, 0.1, key="t1_p")
-
+    
+    #kalkulator
     if st.button("Oblicz BMR i TDEE"):
         bmr_val = calculate_bmr_simple(g, w, h, a)
         tdee_val = bmr_val * p
