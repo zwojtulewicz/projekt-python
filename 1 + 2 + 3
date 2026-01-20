@@ -21,7 +21,7 @@ class User:
     @gender.setter
     def gender(self, g):  #setter sprawdza czy spełnione są konkretne warunki (płeć kobieta lub mężczyzna)
         valid_gender = ["f", "m"]
-        if not isinstance(g, str) or g.casefold() not in valid_gender:
+        if not isinstance(g, str) or g.casefold() not in valid_gender:  #jeżeli płeć nie jest stringiem lub jedną z valid genders - error
             raise ValueError("Nieprawidłowa płeć")
         self._gender = g.casefold()  #jeżeli spełnione są warunki - zapis do zmiennej       
 
@@ -29,24 +29,24 @@ class User:
     def age(self): return self._age
     @age.setter
     def age(self, a):  #setter sprawdza czy spełnione są konkretne warunki (wiek wyższy lub równy 0 i jednocześnie mniejszy od 120)
-        if not isinstance(a, int) or a <= 0 or a > 120:
+        if not isinstance(a, int) or a <= 0 or a > 120:  #jeżeli nie spełnia warunków lub nie jest liczbą całkowitą - error
             raise ValueError("Nieprawidłowy wiek")
         self._age = a
 
     @property
     def weight(self): return self._weight
     @weight.setter
-    def weight(self, w):
-        if w <= 0 or w > 600: #setter sprawdza czy spełnione są konkretne warunki (waga większa lub równa 0 i jednocześnie mniejsza od 600)
+    def weight(self, w):   #setter sprawdza czy spełnione są konkretne warunki (waga większa lub równa 0 i jednocześnie mniejsza od 600)
+        if w <= 0 or w > 600:  #jeżeli nie spełnia warunków - error
             raise ValueError("Nieprawidłowa waga")
         self._weight = w
 
     @property
     def height(self): return self._height
     @height.setter
-    def height(self, h):
-        if h <= 50 or h > 300: #setter sprawdza czy spełnione są konkretne warunki (wzrost większy lub równy 50 i jednocześnie mniejszy od 300)
-            raise ValueError("Nieprawidłowy wzrost")
+    def height(self, h):  #setter sprawdza czy spełnione są konkretne warunki (wzrost większy lub równy 50 i jednocześnie mniejszy od 300)
+        if h <= 50 or h > 300:  #jeżeli nie spełnia warunków - error
+            raise ValueError("Nieprawidłowy wzrost") 
         self._height = h
 
     @property
@@ -54,7 +54,7 @@ class User:
     @target.setter
     def target(self, t):
         valid_target = ["lose", "gain", "maintain"]  #setter sprawdza czy spełnione są konkretne warunki (czy cel znajduje się w liście)
-        if not isinstance(t, str) or t.casefold() not in valid_target:
+        if not isinstance(t, str) or t.casefold() not in valid_target:  #jeżeli cel nie jest stringiem i nie należy do listy - error
             raise ValueError("Nieprawidłowy cel")
         self._target = t.casefold()
 
@@ -186,7 +186,7 @@ with tab1:
                 color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
             elif bmi < 35.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 30, ale mniejsze o od 35 i przypisuje temu odpowiednią interpretację
                 interpretacja = "otyłość I stopnia"
-                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerwony
             elif bmi < 40.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 35, ale mniejsze o od 40 i przypisuje temu odpowiednią interpretację
                 interpretacja = "otyłość II stopnia"
                 color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
