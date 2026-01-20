@@ -1,31 +1,34 @@
-import streamlit as st # importuję bibliotekę streamlit do interpretacji graficznej w postaci strony internetowej działającej lokalnie
+import streamlit as st #importuje bibliotekę streamlit do interpretacji graficznej w postaci strony internetowej działającej lokalnie
 
-##### logika biznesowa musi byc na poczatku!! #####
+##### logika biznesowa #####
+
+#klasa - wywoływana automatycznie przy tworzeniu nowego użytkownika
 
 class User:
+#przypisania, które wywołują settery, czyli metody walidacji
     def __init__(self, gender, age, weight, height, activity, restrictions, lifestyle, target):
-        self.gender = gender
-        self.age = age
-        self.weight = weight
-        self.height = height
-        self.activity = activity
-        self.restrictions = [r.casefold() for r in restrictions]
-        self.lifestyle = lifestyle
-        self.target = target
+        self.gender = gender  #ustawienie płci
+        self.age = age  #ustawienie wieku
+        self.weight = weight  #ustawienie wagi
+        self.height = height  #ustawienie wzrostu
+        self.activity = activity  #ustawienie poziomu aktywności
+        self.restrictions = [r.casefold() for r in restrictions]  #tworzy listę restrykcji
+        self.lifestyle = lifestyle  #ustawienie trybu życia
+        self.target = target  #ustawienie targetu
 
     @property
-    def gender(self): return self._gender
+    def gender(self): return self._gender  #getter zwraca wartość zmiennej
     @gender.setter
-    def gender(self, g):
+    def gender(self, g):  #setter sprawdza czy spełnione są konkretne warunki (płeć kobieta lub mężczyzna)
         valid_gender = ["f", "m"]
         if not isinstance(g, str) or g.casefold() not in valid_gender:
             raise ValueError("Nieprawidłowa płeć")
-        self._gender = g.casefold()        
+        self._gender = g.casefold()  #jeżeli spełnione są warunki - zapis do zmiennej       
 
     @property
     def age(self): return self._age
     @age.setter
-    def age(self, a):
+    def age(self, a):  #setter sprawdza czy spełnione są konkretne warunki (wiek wyższy lub równy 0 i jednocześnie mniejszy od 120)
         if not isinstance(a, int) or a <= 0 or a > 120:
             raise ValueError("Nieprawidłowy wiek")
         self._age = a
@@ -34,7 +37,7 @@ class User:
     def weight(self): return self._weight
     @weight.setter
     def weight(self, w):
-        if w <= 0 or w > 600:
+        if w <= 0 or w > 600: #setter sprawdza czy spełnione są konkretne warunki (waga większa lub równa 0 i jednocześnie mniejsza od 600)
             raise ValueError("Nieprawidłowa waga")
         self._weight = w
 
@@ -42,7 +45,7 @@ class User:
     def height(self): return self._height
     @height.setter
     def height(self, h):
-        if h <= 50 or h > 300:
+        if h <= 50 or h > 300: #setter sprawdza czy spełnione są konkretne warunki (wzrost większy lub równy 50 i jednocześnie mniejszy od 300)
             raise ValueError("Nieprawidłowy wzrost")
         self._height = h
 
@@ -50,12 +53,12 @@ class User:
     def target(self): return self._target
     @target.setter
     def target(self, t):
-        valid_target = ["lose", "gain", "maintain"]
+        valid_target = ["lose", "gain", "maintain"]  #setter sprawdza czy spełnione są konkretne warunki (czy cel znajduje się w liście)
         if not isinstance(t, str) or t.casefold() not in valid_target:
             raise ValueError("Nieprawidłowy cel")
         self._target = t.casefold()
 
-    #kalkulator podstawowej przemiany materii
+#kalkulator podstawowej przemiany materii
 
     def calculate_bmr(self):
         if self.gender == "f":
@@ -63,10 +66,12 @@ class User:
         else:
             return 10 * self.weight + 6.25 * self.height - 5 * self.age + 5
 
-    #kalkulator zapotrzebowania kalorycznego
+#kalkulator zapotrzebowania kalorycznego
 
     def calculate_tdee(self):
         return self.calculate_bmr() * self.activity
+
+#definiuje proporcje makroskładników w zależności od celu
 
     def macros(self, tdee_value):
         if self.target == "lose":
@@ -75,7 +80,9 @@ class User:
             p_ratio, f_ratio, c_ratio = 0.20, 0.20, 0.60
         else:
             p_ratio, f_ratio, c_ratio = 0.20, 0.30, 0.50
-        
+
+#kalkulacja zapotrzebowania na konkretną gramaturę makroskładników
+
         proteins = (tdee_value * p_ratio) / 4
         fats = (tdee_value * f_ratio) / 9
         carbs = (tdee_value * c_ratio) / 4
@@ -85,6 +92,8 @@ class User:
             "Węglowodany (g)": round(carbs)
         }
 
+#funkcja zwraca zalecenia odnośnie mikroskładników w zależności od wybranego celu
+
     def minerals(self):
         if self.target == "lose":
             return "Monitoruj poziom magnezu, witamin z grupy B, żelaza i jodu ze względu na deficyt kaloryczny."
@@ -93,11 +102,15 @@ class User:
         else:
             return "Dla zdrowej diety monitoruj magnez, potas, witaminy B i D oraz kwasy OMEGA-3."
 
+#funkcja rekomenduje konkretne produkty szczególnie bogate w dane makroskładniki
+
     def recs(self):
         protein_list = ["kurczak", "indyk", "chuda wołowina", "ryby", "jajka", "twaróg", "jogurt grecki", "soczewica", "quinoa", "fasola", "ciecierzyca", "tofu"]
         fat_list = ["oliwa", "orzechy (migdały, włoskie)", "awokado", "nasiona chia", "pestki dyni", "ryby morskie"]
         carb_list = ["kasze", "brązowy ryż", "owies", "chleb pełnoziarnisty", "makaron pełnoziarnisty", "ziemniaki", "bataty", "owoce", "warzywa"]
-    
+
+#restrykcje żywieniowe - w zależności od wyboru użytkownika usuwa nietolerowane produkty z listy rekomendacji
+
         if "wegańska" in self.restrictions:
             forbidden = ["kurczak", "indyk", "chuda wołowina", "ryby", "jajka", "twaróg", "jogurt grecki", "ryby morskie"]
             protein_list = [p for p in protein_list if p not in forbidden]
@@ -106,7 +119,6 @@ class User:
             forbidden = ["kurczak", "indyk", "chuda wołowina", "ryby", "ryby morskie"]
             protein_list = [p for p in protein_list if p not in forbidden]
             fat_list = [p for p in fat_list if p not in forbidden]
-
         if "bezglutenowa" in self.restrictions:
             gluten = ["owies", "chleb pełnoziarnisty", "makaron pełnoziarnisty"]
             carb_list = [p for p in carb_list if p not in gluten]
@@ -257,7 +269,7 @@ with tab3:
 
     if st.button("Generuj Plan Dietetyczny", type="primary", key="btn_zuzia"):  #przycisk uruchamiający kod
         try:
-            # Tworzenie obiektu klasy User
+            #tworzenie obiektu klasy User
             user = User(
                 gender=gender_val, 
                 age=int(age_z), 
@@ -284,8 +296,8 @@ with tab3:
             
             with st.expander("Zobacz polecane produkty"):  #tworzy rozwijaną listę rekomendacji
                 recs_res = user.recs()  #pobiera listę rekomendowanych produktów z klasy
-                for k, v in recs_res.items():
-                    st.write(f"**{k}:** {v}")
+                for k, v in recs_res.items():  #pętla przechodząca przez słownik z rekomendacjami
+                    st.write(f"**{k}:** {v}")  #wypisuje zmienne w tekście (** - pogrubienie)
 
 #jeżeli input był zły - błąd
         except ValueError as e:  
