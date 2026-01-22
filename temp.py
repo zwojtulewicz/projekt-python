@@ -1,0 +1,330 @@
+import streamlit as st #importuje bibliotekę streamlit do interpretacji graficznej w postaci strony internetowej działającej lokalnie
+
+##### logika biznesowa #####
+
+#klasa - wywoływana automatycznie przy tworzeniu nowego użytkownika
+
+class User:
+#przypisania, które wywołują settery, czyli metody walidacji
+    def __init__(self, gender, age, weight, height, activity, restrictions, lifestyle, target):
+        self.gender = gender  #ustawienie płci
+        self.age = age  #ustawienie wieku
+        self.weight = weight  #ustawienie wagi
+        self.height = height  #ustawienie wzrostu
+        self.activity = activity  #ustawienie poziomu aktywności
+        self.restrictions = [r.casefold() for r in restrictions]  #tworzy listę restrykcji
+        self.lifestyle = lifestyle  #ustawienie trybu życia
+        self.target = target  #ustawienie targetu
+
+    @property
+    def gender(self): return self._gender  #getter zwraca wartość zmiennej
+    @gender.setter
+    def gender(self, g):  #setter sprawdza czy spełnione są konkretne warunki (płeć kobieta lub mężczyzna)
+        valid_gender = ["f", "m"]
+        if not isinstance(g, str) or g.casefold() not in valid_gender:  #jeżeli płeć nie jest stringiem lub jedną z valid genders - error
+            raise ValueError("Nieprawidłowa płeć")
+        self._gender = g.casefold()  #jeżeli spełnione są warunki - zapis do zmiennej       
+
+    @property
+    def age(self): return self._age
+    @age.setter
+    def age(self, a):  #setter sprawdza czy spełnione są konkretne warunki (wiek wyższy lub równy 0 i jednocześnie mniejszy od 120)
+        if not isinstance(a, int) or a <= 0 or a > 120:  #jeżeli nie spełnia warunków lub nie jest liczbą całkowitą - error
+            raise ValueError("Nieprawidłowy wiek")
+        self._age = a
+
+    @property
+    def weight(self): return self._weight
+    @weight.setter
+    def weight(self, w):   #setter sprawdza czy spełnione są konkretne warunki (waga większa lub równa 0 i jednocześnie mniejsza od 600)
+        if w <= 0 or w > 600:  #jeżeli nie spełnia warunków - error
+            raise ValueError("Nieprawidłowa waga")
+        self._weight = w
+
+    @property
+    def height(self): return self._height
+    @height.setter
+    def height(self, h):  #setter sprawdza czy spełnione są konkretne warunki (wzrost większy lub równy 50 i jednocześnie mniejszy od 300)
+        if h <= 50 or h > 300:  #jeżeli nie spełnia warunków - error
+            raise ValueError("Nieprawidłowy wzrost") 
+        self._height = h
+
+    @property
+    def target(self): return self._target
+    @target.setter
+    def target(self, t):
+        valid_target = ["lose", "gain", "maintain"]  #setter sprawdza czy spełnione są konkretne warunki (czy cel znajduje się w liście)
+        if not isinstance(t, str) or t.casefold() not in valid_target:  #jeżeli cel nie jest stringiem i nie należy do listy - error
+            raise ValueError("Nieprawidłowy cel")
+        self._target = t.casefold()
+
+#kalkulator podstawowej przemiany materii
+
+    def calculate_bmr(self):
+        if self.gender == "f":
+            return 10 * self.weight + 6.25 * self.height - 5 * self.age - 161
+        else:
+            return 10 * self.weight + 6.25 * self.height - 5 * self.age + 5
+
+#kalkulator zapotrzebowania kalorycznego
+
+    def calculate_tdee(self):
+        return self.calculate_bmr() * self.activity
+
+#definiuje proporcje makroskładników w zależności od celu
+
+    def macros(self, tdee_value):
+        if self.target == "lose":
+            p_ratio, f_ratio, c_ratio = 0.30, 0.25, 0.45
+        elif self.target == "gain":
+            p_ratio, f_ratio, c_ratio = 0.20, 0.20, 0.60
+        else:
+            p_ratio, f_ratio, c_ratio = 0.20, 0.30, 0.50
+
+#kalkulacja zapotrzebowania na konkretną gramaturę makroskładników
+
+        proteins = (tdee_value * p_ratio) / 4
+        fats = (tdee_value * f_ratio) / 9
+        carbs = (tdee_value * c_ratio) / 4
+        return {
+            "Białko (g)": round(proteins),
+            "Tłuszcze (g)": round(fats),
+            "Węglowodany (g)": round(carbs)
+        }
+
+#funkcja zwraca zalecenia odnośnie mikroskładników w zależności od wybranego celu
+
+    def minerals(self):
+        if self.target == "lose":
+            return "Monitoruj poziom magnezu, witamin z grupy B, żelaza i jodu ze względu na deficyt kaloryczny."
+        elif self.target == "gain":
+            return "Monitoruj cynk, wapń, witaminę D, potas i sód."
+        else:
+            return "Dla zdrowej diety monitoruj magnez, potas, witaminy B i D oraz kwasy OMEGA-3."
+
+#funkcja rekomenduje konkretne produkty szczególnie bogate w dane makroskładniki
+
+    def recs(self):
+        protein_list = ["kurczak", "indyk", "chuda wołowina", "ryby", "jajka", "twaróg", "jogurt grecki", "soczewica", "quinoa", "fasola", "ciecierzyca", "tofu"]
+        fat_list = ["oliwa", "orzechy (migdały, włoskie)", "awokado", "nasiona chia", "pestki dyni", "ryby morskie"]
+        carb_list = ["kasze", "brązowy ryż", "owies", "chleb pełnoziarnisty", "makaron pełnoziarnisty", "ziemniaki", "bataty", "owoce", "warzywa"]
+
+#restrykcje żywieniowe - w zależności od wyboru użytkownika usuwa nietolerowane produkty z listy rekomendacji
+
+        if "wegańska" in self.restrictions:
+            forbidden = ["kurczak", "indyk", "chuda wołowina", "ryby", "jajka", "twaróg", "jogurt grecki", "ryby morskie"]
+            protein_list = [p for p in protein_list if p not in forbidden]
+            fat_list = [p for p in fat_list if p not in forbidden]
+        elif "wegetariańska" in self.restrictions:
+            forbidden = ["kurczak", "indyk", "chuda wołowina", "ryby", "ryby morskie"]
+            protein_list = [p for p in protein_list if p not in forbidden]
+            fat_list = [p for p in fat_list if p not in forbidden]
+        if "bezglutenowa" in self.restrictions:
+            gluten = ["owies", "chleb pełnoziarnisty", "makaron pełnoziarnisty"]
+            carb_list = [p for p in carb_list if p not in gluten]
+            carb_list.extend(["chleb bezglutenowy", "makaron kukurydziany/ryżowy", "płatki jaglane"])
+
+        return {"Białka": ", ".join(protein_list), "Tłuszcze": ", ".join(fat_list), "Węglowodany": ", ".join(carb_list)}
+
+#funkcja - kalkulator podstawowej przemiany materii
+def calculate_bmr_simple(gender, weight, height, age):
+    if gender == "Kobieta":
+        return 10 * weight + 6.25 * height - 5 * age - 161
+    return 10 * weight + 6.25 * height - 5 * age + 5
+
+
+##### reprezentacja graficzna #####
+
+st.title("🌱 Asystent Zdrowego Żywienia") # tytuł aplikacji
+st.write("Witaj w kompleksowym systemie wsparcia dietetycznego.") # podtytuł/pierwszy komunikat dla użytkownika
+
+# Zdefiniowanie wspólnych zakładek dla wszystkich funkcjonalności
+tab1, tab2, tab3, tab4 = st.tabs(["Kalkulator BMI", "Kalkulator BMR/TDEE", "Planer Dietetyczny", "Rekomendacja posiłków"])
+
+##### zakladka 1 - Kalkulator BMI #####
+
+with tab1:
+    st.header("Kalkulator BMI") # nagłówek zakładki
+
+    col1, col2 = st.columns(2) # określenie liczby "kolumn", powoduje to, że wizualnie okienka do wpisania wagi i wzrostu będą wyświetlane obok siebie
+
+    with col1:
+        # definiuje jak wyglądać będzie pierwsza część zakładki kalkulatora BMI - jest to numeryczny input wagi użytkownika, min_value określa minimalną wartość (w tym przypadku większą od 0),
+        # step pozwala na operację strzałkami +/-, gdzie każde kliknięcie zmienia wartość w okienku o 0.1
+        waga = st.number_input("Podaj wagę (kg)", min_value=0.0, step=0.1, key="bmi_waga") # całość zapisana jest w zmiennej 'waga'
+
+    with col2:
+        # definiuje jak wyglądać będzie druga część zakładki kalkulatora BMI - jest to numeryczny input wzrostu użytkownika, min_value określa minimalną wartość (w tym przypadku większą od 0),
+        # step pozwala na operację strzałkami +/-, gdzie każde kliknięcie zmienia wartość w okienku o 0.1,
+        # dodatkowo uwzględniony jest konkretny format, który wymusi wyświetlenie wartości z zaokrągleniem do 2 miesjc po przecinku
+        wzrost = st.number_input("Podaj wzrost (m)", min_value=0.0, step=0.01, format="%.2f", key="bmi_wzrost") # całość zapisana jest w zmiennej wzrost
+
+    if st.button("Oblicz moje BMI"): # uwtorzenie przycisku do wywołania dalszej części kodu
+        if waga > 0 and wzrost > 0: # warunek, który sprawdza, czy zarówno waga jak i wzrost są większe od 0 
+            # oblicza BMI zgodnie ze wzorem matematycznym i zapisuje wynik w zmiennej 'bmi'
+            bmi = waga / (wzrost ** 2) # wzór do obliczenia BMI - waga podzielona na wzrost do kwadratu, wszystko to zostaje zapisane w zmiennej 'BMI'
+            
+            st.metric(label="Twoje BMI wynosi", value=f"{bmi:.2f}")
+            
+            interpretacja = "" # tworzy pustą zmienną tekstową, do której na podstawie wyniku obliczeń przypisana zostanie interpretacja
+            color = "" # tworzy pustą zmienną, która pozwoli nam później zmienić kolor wyświetlanego komunikatu na podstawie wyniku kalkulatora 
+            
+            if bmi < 16.0: # sprawdza, czy BMI jest mniejsze od 16 i przypisuje temu odpowiednią interpretację
+                interpretacja = "wygłodzenie"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            elif bmi < 17.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 16, ale mniejsze o od 17 i przypisuje temu odpowiednią interpretację
+                interpretacja = "wychudzenie"
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 18.5: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 17, ale mniejsze o od 18.5 i przypisuje temu odpowiednią interpretację
+                interpretacja = "niedowaga"
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 25.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 18.5, ale mniejsze o od 25 i przypisuje temu odpowiednią interpretację
+                interpretacja = "waga prawidłowa"
+                color = "success" # ustawia flagę koloru na "success", co w języku streamlit oznacza zielony
+            elif bmi < 30.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 25, ale mniejsze o od 30 i przypisuje temu odpowiednią interpretację
+                interpretacja = "nadwaga"
+                color = "warning" # ustawia flagę koloru na "warning", co w języku streamlit oznacza pomarańczowy
+            elif bmi < 35.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 30, ale mniejsze o od 35 i przypisuje temu odpowiednią interpretację
+                interpretacja = "otyłość I stopnia"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerwony
+            elif bmi < 40.0: # jeżeli powyższy warunek jest niespełniony sprawdza, czy BMI jest większe lub równe 35, ale mniejsze o od 40 i przypisuje temu odpowiednią interpretację
+                interpretacja = "otyłość II stopnia"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            else: # jeżeli powyższy warunek jest niespełniony else zajmuje się wszystkimi przypadkami gdzie BMI jest większe lub równe 40
+                interpretacja = "otyłość III stopnia"
+                color = "error" # ustawia flagę koloru na "error", co w języku streamlit oznacza czerowny
+            
+            if color == "success": # wyświetla zielony pasek "sukcesu" z tekstem interpretacji
+                st.success(f"Interpretacja: {interpretacja}")
+            elif color == "warning": # wyświetla pomarańczowy pasek "ostrzeżenia" z tekstem interpretacji
+                st.warning(f"Interpretacja: {interpretacja}")
+            else: # wyświetla czerwony "błędu" z tekstem interpretacji
+                st.error(f"Interpretacja: {interpretacja}")
+                
+        else: # to else zajmuje się przypadkiem, gdzie dane są równe 0, wyświetla komunikat błędu, który informuje że dane muszą zostać uzupełnione 
+            st.error("Proszę uzupełnić wagę i wzrost wartościami większymi od zera.")
+
+##### zakladka 2 - podstawowa przemiana materii i zapotrzebowanie kaloryczne #####
+
+with tab2:
+    st.header("Szybkie obliczenia")
+    with st.container():
+        c1, c2 = st.columns(2)
+        #użytkownik podaje swoją płeć  - pierwsza kolumna
+        with c1:
+            g = st.selectbox("Płeć", ["Kobieta", "Mężczyzna"], key="t1_g")
+            a = st.number_input("Wiek", 1, 120, 25, key="t1_a")
+        #użytkownik podaje swoją wagę - druga kolumna
+        with c2:
+            w = st.number_input("Waga (kg)", 10.0, 300.0, 70.0, key="t1_w")
+            h = st.number_input("Wzrost (cm)", 50.0, 250.0, 170.0, key="t1_h")
+        
+        #użytkownik wskazuje swoją aktywność fizyczną - 1 oznacza brak aktywności
+        p = st.slider("Aktywność (PAL)", 1.2, 2.4, 1.4, 0.1, key="t1_p")
+    
+    #kalkulator
+    if st.button("Oblicz BMR i TDEE"):
+        bmr_val = calculate_bmr_simple(g, w, h, a)
+        tdee_val = bmr_val * p
+        st.divider()
+        col_res1, col_res2 = st.columns(2)
+        col_res1.metric("Podstawowa przemiana materii:", f"{bmr_val:.2f} kcal")
+        col_res2.metric("Całkowite dzienne zapotrzebowanie kaloryczne:", f"{tdee_val:.2f} kcal")
+
+##### zakladka 3 - rekomendacje mikro i makro #####
+
+with tab3:                    
+    st.header("Planer Dietetyczny")  #ustawia nagłówek
+    
+    col_z1, col_z2 = st.columns(2)  #dzieli ekran na kolumny
+
+#zawartość 1 kolumny (lista rozwijana z płcią, pole numeryczne do wieku, wzrostu i wagi)
+    with col_z1: 
+        gender_display = st.selectbox("Płeć", ["Mężczyzna", "Kobieta"], key="z_plec")
+        gender_val = "m" if gender_display == "Mężczyzna" else "f"  #odnosi się do wartości określonych w klasie
+        
+        age_z = st.number_input("Wiek", min_value=1, max_value=120, value=25, key="z_wiek")  #domyślna wartość: 25
+
+        height_z = st.number_input("Wzrost (cm)", min_value=100, max_value=250, value=170, key="z_wzrost")  #domyślna wartość: 170
+        weight_z = st.number_input("Waga (kg)", min_value=30.0, max_value=300.0, value=65.0, key="z_waga")  #domyślna wartość: 65
+
+#zawartość 2 kolumny (słownik z opcjami aktywności i ich wartościami ze wzoru matematycznego oraz wybór celu)
+    with col_z2:
+        activity_options = {
+            "Brak ćwiczeń": 1.2,
+            "Lekka (1-3 dni)": 1.375,
+            "Umiarkowana (3-5 dni)": 1.55,
+            "Duża (6-7 dni)": 1.725
+        }
+        act_key = st.selectbox("Aktywność", list(activity_options.keys()), key="z_akt")  #wyświetla klucze z listy
+        activity_val = activity_options[act_key]  #wyciąga wartość liczbową z kodu podporządkowaną pod klucz
+
+        target_options = {"Schudnąć": "lose", "Utrzymać": "maintain", "Przytyć": "gain"}  #słownik podporządkowany pod klasę
+        tar_key = st.selectbox("Cel", list(target_options.keys()), key="z_cel")  #lista z wyborem celu
+        target_val = target_options[tar_key]  #wyciąga wartość z kodu podporządkowaną pod klucz
+        
+        lifestyle = st.selectbox("Tryb pracy", ["Biurowa", "Fizyczna", "Mieszana"], key="z_praca")  #lista wyboru trybu pracy
+
+    restrictions = st.multiselect("Restrykcje", ["Bezglutenowa", "Wegetariańska", "Wegańska"], key="z_restr")  #lista wyboru restrykcji żywieniowych
+
+    if st.button("Generuj Plan Dietetyczny", type="primary", key="btn_zuzia"):  #przycisk uruchamiający kod
+        try:
+            #tworzenie obiektu klasy User
+            user = User(
+                gender=gender_val, 
+                age=int(age_z), 
+                weight=weight_z, 
+                height=int(height_z), 
+                activity=activity_val, 
+                restrictions=restrictions, 
+                lifestyle=lifestyle, 
+                target=target_val
+            )  #przekazanie danych do klasy, sprawdzenie czy nie ma errorów
+            
+            tdee_value = user.calculate_tdee()  #wywołuje funkcję kalkulatora tdee z klasy User
+
+            st.markdown("---")  #linia oddzielająca formularz od wyników  
+            st.success(f"🥑 Twoje zapotrzebowanie (TDEE): **{int(tdee_value)} kcal**")  #wyświetla wynik
+            
+            macros_res = user.macros(tdee_value)  #uruchamia metodę macros z klasy
+            c1, c2, c3 = st.columns(3)  #dzieli ekran na 3 kolumny, gdzie wyświetlają się wyniki pojedyńczych makroelementów
+            c1.metric("Białko", f"{macros_res['Białko (g)']} g")
+            c2.metric("Tłuszcze", f"{macros_res['Tłuszcze (g)']} g")
+            c3.metric("Węglowodany", f"{macros_res['Węglowodany (g)']} g")
+
+            st.info(f"💡 Porada: {user.minerals()}")  #wyświetla poradę odnośnie mikroelementów
+            
+            with st.expander("Zobacz polecane produkty"):  #tworzy rozwijaną listę rekomendacji
+                recs_res = user.recs()  #pobiera listę rekomendowanych produktów z klasy
+                for k, v in recs_res.items():  #pętla przechodząca przez słownik z rekomendacjami
+                    st.write(f"**{k}:** {v}")  #wypisuje zmienne w tekście (** - pogrubienie)
+
+#jeżeli input był zły - błąd
+        except ValueError as e:  
+            st.error(f"Błąd danych: {e}")
+
+##### zakladka 4 - rekomendacje posiłków #####
+from rekomendacje_ania import *
+
+with tab4:
+    st.header("Rekomendacje posiłków")
+    st.subheader("Operacje na pliku z przepisami:")
+
+    nowy_przepis = st.text_input("Wklej link do przepisu lub jego nazwę:", key="input_przepis")
+
+    if st.button("Dodaj przepis"):
+        # Sprawdzamy, czy użytkownik coś wpisał
+        if nowy_przepis:
+            try:
+                add_recipe_to_file(nowy_przepis)
+                st.success(f"Pomyślnie dodano: {nowy_przepis}") # zle dziala
+            except Exception as e:
+                st.error(f"Wystąpił błąd podczas zapisywania: {e}")
+        else:
+            # Komunikat, jeśli kliknięto przycisk, ale pole jest puste
+            st.warning("Musisz najpierw coś wpisać w polu powyżej!")
+
+    st.subheader("Wprowadź swoje dane:")
+    st.write(f"{nowy_przepis}")
+
+    st.subheader("Wprowadź swoje dane:")
