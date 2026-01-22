@@ -42,7 +42,21 @@ Aplikacja podzielona jest na kilka interaktywnych modułów:
 - Inteligentny algorytm rekomendacji posiłków  
 - Dobieranie przepisów do dziennego celu kalorycznego i makroskładnikowego  
 - Możliwość planowania całego dnia:
-  - 3, 4 lub 5 posiłków  
+  - 3, 4 lub 5 posiłków
+
+---
+
+## Struktura plików
+- `main.py`: Główny plik uruchomieniowy aplikacji. Łączy wszystkie moduły i zarządza nawigacją między zakładkami
+- `aniagotuje_scraping.py`: Moduł odpowiedzialny za web scraping. Zawiera klasę recipe oraz funkcje pobierające i parsujące dane ze strony **aniagotuje.pl**
+- `file_handling_tab.py`: Obsługa pliku CSV (wczytywanie, dodawanie i usuwanie przepisów z bazy)
+- `meal_recommendations_tab.py`: Logika "książki kucharskiej" i algorytm dobierania najlepszego przepisu do zadanych celów makroskładnikowych
+- `input_handling.py`: Definicja klasy User wraz z walidacją danych wejściowych (gettery, settery)
+- `input_tab.py`: Komponenty interfejsu służące do wprowadzania danych użytkownika
+- `bmi_tab.py`: Logika i wyświetlanie kalkulatora BMI
+- `bmr_tdee_tab.py`: Funkcje obliczeniowe dla zapotrzebowania kalorycznego
+- `macros_tab.py`: Obliczenia podziału makroskładników i generowanie list polecanych produktów
+- `recipes.csv`: Plik tekstowy pełniący rolę bazy danych z nazwami przepisów
 
 ---
 
