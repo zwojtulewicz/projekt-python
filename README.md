@@ -54,7 +54,19 @@ Aplikacja podzielona jest na kilka interaktywnych modułów:
 
 ### Instalacja
 
-Sklonuj repozytorium:
 ```bash
-git clone <adres-twojego-repozytorium>
-cd <nazwa-folderu>
+# Sklonuj repozytorium
+git clone https://github.com/zwojtulewicz/projekt-python.git
+cd projekt-python
+
+# Utwórz i aktywuj środowisko wirtualne
+python3 -m venv venv
+source venv/bin/activate  # macOS / Linux
+# venv\Scripts\activate   # Windows
+
+# Zainstaluj wymagane pakiety
+pip install streamlit requests beautifulsoup4
+
+# Uruchom aplikację
+streamlit run main.py
+
