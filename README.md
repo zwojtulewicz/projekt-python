@@ -7,7 +7,7 @@ Projekt pełni rolę osobistego asystenta dietetycznego, oferując narzędzia do
 
 ## Główne funkcjonalności
 
-Aplikacja podzielona jest na kilka interaktywnych modułów:
+Aplikacja podzielona jest na 5 interaktywnych modułów:
 
 ### Kalkulator BMI
 - Obliczanie wskaźnika masy ciała na podstawie wagi i wzrostu  
