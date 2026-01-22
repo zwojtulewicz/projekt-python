@@ -47,8 +47,8 @@ Aplikacja podzielona jest na 5 interaktywnych modułów:
 ---
 
 ## Struktura plików
-- `main.py`: Główny plik uruchomieniowy aplikacji. Łączy wszystkie moduły i zarządza nawigacją między zakładkami
-- `aniagotuje_scraping.py`: Moduł odpowiedzialny za web scraping. Zawiera klasę recipe oraz funkcje pobierające i parsujące dane ze strony **aniagotuje.pl**
+- `main.py`: Główny plik uruchomieniowy aplikacji, łączy wszystkie moduły i zarządza nawigacją między zakładkami
+- `aniagotuje_scraping.py`: Moduł odpowiedzialny za web scraping, zawiera klasę recipe oraz funkcje pobierające i parsujące dane ze strony **aniagotuje.pl**
 - `file_handling_tab.py`: Obsługa pliku CSV (wczytywanie, dodawanie i usuwanie przepisów z bazy)
 - `meal_recommendations_tab.py`: Logika "książki kucharskiej" i algorytm dobierania najlepszego przepisu do zadanych celów makroskładnikowych
 - `input_handling.py`: Definicja klasy User wraz z walidacją danych wejściowych (gettery, settery)
@@ -57,6 +57,8 @@ Aplikacja podzielona jest na 5 interaktywnych modułów:
 - `bmr_tdee_tab.py`: Funkcje obliczeniowe dla zapotrzebowania kalorycznego
 - `macros_tab.py`: Obliczenia podziału makroskładników i generowanie list polecanych produktów
 - `recipes.csv`: Plik tekstowy pełniący rolę bazy danych z nazwami przepisów
+- `temp.py`: Alternatywny plik uruchomieniowy, zawiera w jednym miejscu definicję klasy User, logikę kalkulatorów (BMI, BMR/TDEE) oraz konfigurację interfejsu Streamlit, importując jedynie moduł rekomendacji
+- `rekomendacje_ania.py`: Moduł pomocniczy wykorzystywany przez `temp.py`, zawiera definicję klasy recipe, funkcje walidacji danych wejściowych, logikę scrapingu oraz algorytm dopasowania przepisów
 
 ---
 
