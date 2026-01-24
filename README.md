@@ -41,8 +41,6 @@ Aplikacja podzielona jest na 5 interaktywnych modułów:
 ### Interaktywny Kreator Dnia
 - Inteligentny algorytm rekomendacji posiłków  
 - Dobieranie przepisów do dziennego celu kalorycznego i makroskładnikowego  
-- Możliwość planowania całego dnia:
-  - 3, 4 lub 5 posiłków
 
 ---
 
@@ -57,8 +55,6 @@ Aplikacja podzielona jest na 5 interaktywnych modułów:
 - `bmr_tdee_tab.py`: Funkcje obliczeniowe dla zapotrzebowania kalorycznego
 - `macros_tab.py`: Obliczenia podziału makroskładników i generowanie list polecanych produktów
 - `recipes.csv`: Plik tekstowy pełniący rolę bazy danych z nazwami przepisów
-- `temp.py`: Alternatywny plik uruchomieniowy, zawiera w jednym miejscu definicję klasy User, logikę kalkulatorów (BMI, BMR/TDEE) oraz konfigurację interfejsu Streamlit, importując jedynie moduł rekomendacji
-- `rekomendacje_ania.py`: Moduł pomocniczy wykorzystywany przez `temp.py`, zawiera definicję klasy recipe, funkcje walidacji danych wejściowych, logikę scrapingu oraz algorytm dopasowania przepisów
 
 ---
 
