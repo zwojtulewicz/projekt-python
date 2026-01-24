@@ -35,7 +35,7 @@ def load_recipes_from_file(filename="recipes.csv") -> list:
     return recipes
 
 
-def add_recipe_to_file(recipe_url_name: str, filename='recipes.csv') -> None:
+def add_recipe_to_file(recipe_url_name: str, filename='recipes.csv') -> str | None:
     """
     Adds recipe to the CSV file. If the file doesn't exist, returns an empty list.
 
@@ -52,12 +52,11 @@ def add_recipe_to_file(recipe_url_name: str, filename='recipes.csv') -> None:
     # Checks if the user's recipe already exists in the csv file
     if recipe_url_name in load_recipes_from_file(filename):
         print(f"Wpis '{recipe_url_name}' już istnieje w pliku.")
-        return
+        return "Przepis już istnieje w bazie"
 
     try:
         # If create_soup() raises an error, recipe won't be added to the csv file
         soup = create_soup(recipe_url_name)
-        title = get_recipe_title(soup)
 
         # Appends recipe name to the csv file
         with open(filename, 'a', encoding='utf-8', newline='') as f:

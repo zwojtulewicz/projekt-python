@@ -6,6 +6,10 @@ from macros_tab import *
 from file_handling_tab import *
 from meal_recommendations_tab import *
 
+@st.cache_data
+def load_cookbook_cached(filename):
+    return create_cookbook(filename)
+
 if __name__ == "__main__":
     st.title("🌱 Asystent Zdrowego Żywienia")  # tytuł aplikacji
     st.write("Witaj w kompleksowym systemie wsparcia dietetycznego.")  # podtytuł/pierwszy komunikat dla użytkownika
@@ -117,135 +121,170 @@ if __name__ == "__main__":
     with tab5:
         st.header("Obsługa pliku")
 
-        st.text_input(
-            "Nazwa pliku z przepisami:",
-            key="filename",  # Streamlit automatycznie synchronizuje to pole z st.session_state.filename
-            help="Zmiana nazwy tutaj wpłynie na wszystkie operacje poniżej"
-        )
+        # Handles the file name input through a Streamlit form
+        with st.form("file_settings"):
+            temp_filename = st.text_input(
+                "Podaj nazwę pliku csv z przepisami:",
+                value=st.session_state.get('filename', ''),
+                help="Wpisz nazwę i naciśnij Enter lub przycisk poniżej"
+            )
+            submit_file = st.form_submit_button("Zatwierdź plik")
 
-        file = st.session_state.filename
+        if submit_file:
+            # Updates the session state with the provided filename
+            st.session_state.filename = temp_filename
+
+        # Manages the logic for loading the cookbook if the filename is valid
+        if 'filename' in st.session_state and st.session_state.filename:
+            current_file = st.session_state.filename
+
+            # Checks if the cookbook needs to be reloaded from the disk
+            if 'cookbook' not in st.session_state or st.session_state.get('last_loaded_file') != current_file:
+                with st.spinner(f"Ładowanie przepisów z pliku {current_file}..."):
+                    # Populates the cookbook object and updates the tracking variable
+                    st.session_state.cookbook = create_cookbook(current_file)
+                    st.session_state.last_loaded_file = current_file
+
+            cookbook_data = st.session_state.cookbook
+        else:
+            st.warning("Proszę zatwierdzić nazwę pliku, aby kontynuować.")
 
         st.subheader("Dodaj nowy przepis")
-        new_recipe_name = st.text_input("Wpisz nazwę przepisu (z URL):", key="add_input")
+        recipe_to_add = st.text_input("Wpisz nazwę przepisu (z URL):", key="add_input")
 
         if st.button("Zatwierdź dodawanie"):
-            add_recipe_st_version(new_recipe_name, file)
+            # Triggers the scraping and adding process for a new recipe
+            add_recipe_st_version(recipe_to_add, current_file)
 
         st.subheader("Usuń przepis")
-        current_recipes = load_recipes_from_file(file)
+        recipe_slugs = load_recipes_from_file(current_file)
 
-        if current_recipes:
-            recipe_to_remove = st.selectbox("Wybierz przepis do skasowania:", options=current_recipes)
+        if recipe_slugs:
+            slug_to_remove = st.selectbox("Wybierz przepis do skasowania:", options=recipe_slugs)
 
             if st.button("Potwierdź usunięcie"):
-                remove_recipe_from_file(recipe_to_remove, file)
-                st.success(f"Usunięto: {recipe_to_remove}")
+                # Deletes the specified recipe and reloads the application state
+                remove_recipe_from_file(slug_to_remove, current_file)
+                st.success(f"Usunięto: {slug_to_remove}")
                 st.rerun()
         else:
             st.info("Brak przepisów w bazie do usunięcia.")
 
         st.subheader("Twoja lista przepisów")
-        recipes = load_recipes_from_file(file)
+        all_slugs = load_recipes_from_file(current_file)
 
-        if recipes:
-            for r in recipes:
-                st.write(f"• {r}")
+        if all_slugs:
+            for slug in all_slugs:
+                st.write(f"• {slug}")
         else:
             st.write("Lista jest obecnie pusta.")
 
     with tab6:
-        st.header("🥗 Interaktywny Kreator Dnia")
+        st.header("Interaktywny Kreator Dnia")
 
         if st.session_state.user is not None:
-            user = st.session_state.user
-            cookbook = create_cookbook(file)
+            current_user = st.session_state.user
 
-            # 1. Inicjalizacja sesji dla rekomendacji
+            # Verifies if daily plan variables exist in session state, otherwise initializes them
             if 'daily_plan' not in st.session_state:
                 st.session_state.daily_plan = []
+                st.session_state.temp_exclude = []
                 st.session_state.remaining_goals = None
                 st.session_state.meals_to_go = 0
 
-            # Formularz startowy
+            # Renders the initial configuration form for the daily plan
             if st.session_state.meals_to_go == 0:
                 num_meals = st.number_input("Na ile posiłków podzielić dzień?", 2, 10, 3)
                 if st.button("Zacznij planowanie dnia"):
-                    tdee = calculate_tdee(user)
-                    m_goals = macros(user, tdee)
+                    tdee_value = calculate_tdee(current_user)
+                    macro_requirements = macros(current_user, tdee_value)
 
-
-                    # Ustawiamy cele początkowe używając POLSKICH kluczy z Twojej funkcji
+                    # Establishes the starting nutritional budget based on user data
                     st.session_state.remaining_goals = {
-                        'calories': tdee,
-                        'carbs': m_goals.get("Węglowodany (g)", 0),
-                        'protein': m_goals.get("Białko (g)", 0),
-                        'fat': m_goals.get("Tłuszcze (g)", 0),
-                        'sugar': m_goals.get("Cukry (g)", 50)  # Jeśli macros nie liczy cukru, zostawiamy 50g
+                        'calories': tdee_value,
+                        'carbs': macro_requirements.get("Węglowodany (g)", 0),
+                        'protein': macro_requirements.get("Białko (g)", 0),
+                        'fat': macro_requirements.get("Tłuszcze (g)", 0),
+                        'sugar': macro_requirements.get("Cukry (g)", 50)
                     }
                     st.session_state.meals_to_go = num_meals
                     st.session_state.daily_plan = []
                     st.rerun()
 
-            # 2. Proces rekomendacji
+            # Handles the active meal selection process
             if st.session_state.meals_to_go > 0:
-                st.write(f"Pozostało posiłków do zaplanowania: **{st.session_state.meals_to_go}**")
+                st.write(f"Pozostało posiłków do zaplanowania: {st.session_state.meals_to_go}")
 
-                # Obliczamy cel dla TEGO konkretnego posiłku
-                current_meal_target = {
+                # Calculates requirements for the current specific meal slot
+                meal_target = {
                     k: v / st.session_state.meals_to_go
                     for k, v in st.session_state.remaining_goals.items()
                 }
 
-                # Szukamy przepisu
-                # (Pamiętaj, aby cookbook był dostępny w zasięgu)
-                rec = find_best_match(
-                    cookbook,
-                    user,
-                    exclude=st.session_state.daily_plan
+                # Merges confirmed recipes and temporary skips for the exclusion filter
+                exclusion_list = st.session_state.daily_plan + st.session_state.get('temp_exclude', [])
+
+                # Invokes the matching algorithm to suggest the best recipe
+                suggested_recipe = find_best_match(
+                    st.session_state.cookbook,
+                    current_user,
+                    goals=meal_target,
+                    exclude=exclusion_list
                 )
 
-                if rec:
+                if suggested_recipe:
                     st.subheader(f"Propozycja posiłku nr {len(st.session_state.daily_plan) + 1}")
-                    st.info(f"Szukaliśmy posiłku o parametrach: {current_meal_target['calories']:.0f} kcal")
 
                     col1, col2 = st.columns([2, 1])
                     with col1:
-                        st.markdown(f"### {rec.title}")
-                        st.write(f"⏱ Czas: {rec.cooking_time} min")
-                        st.write("**Składniki:**", ", ".join(rec.ingredients))
+                        st.markdown(f"### {suggested_recipe.title}")
+                        st.write(f"Czas: {suggested_recipe.cooking_time} min")
+                        st.write("Składniki:", ", ".join(suggested_recipe.ingredients))
                     with col2:
                         st.write("**Makra (w 100g):**")
-                        st.json(rec.macro)
+                        st.json(suggested_recipe.macro)
 
-                    # PRZYCISKI AKCJI
-                    c1, c2 = st.columns(2)
-                    if c1.button("✅ Akceptuję, podaj następny", type="primary"):
-                        # Aktualizujemy stan
-                        st.session_state.daily_plan.append(rec)
-                        # Odejmujemy (zakładając porcję np. 300g jak wcześniej ustaliliśmy)
-                        multiplier = 3.0
-                        for key, macro_name in {'calories': 'Kalorie (kcal)', 'carbs': 'Węglowodany (g)',
-                                                'protein': 'Białko (g)', 'fat': 'Tłuszcze (g)',
-                                                'sugar': 'Cukry (g)'}.items():
-                            val = float(rec.macro.get(macro_name, 0)) * multiplier
-                            st.session_state.remaining_goals[key] -= val
+                    btn_col1, btn_col2, btn_col3 = st.columns(3)
 
+                    if btn_col1.button("Akceptuję", type="primary", use_container_width=True):
+                        # Adds the chosen recipe to the daily plan and updates balance
+                        st.session_state.daily_plan.append(suggested_recipe)
+
+                        portion_multiplier = 3.0
+                        mapping_dict = {
+                            'calories': 'Kalorie (kcal)',
+                            'carbs': 'Węglowodany (g)',
+                            'protein': 'Białko (g)',
+                            'fat': 'Tłuszcze (g)',
+                            'sugar': 'Cukry (g)'
+                        }
+
+                        for internal_key, recipe_key in mapping_dict.items():
+                            macro_value = float(suggested_recipe.macro.get(recipe_key, 0)) * portion_multiplier
+                            # Subtracts the consumed nutrients from the remaining daily allowance
+                            st.session_state.remaining_goals[internal_key] -= macro_value
+
+                        st.session_state.temp_exclude = []
                         st.session_state.meals_to_go -= 1
                         st.rerun()
 
-                    if c2.button("🔄 Losuj inny"):
-                        st.toast("Szukam innej opcji...")  # W tej wersji Greedy zawsze znajdzie to samo,
-                        # chyba że dodasz element losowości
+                    if btn_col2.button("Zaproponuj inny", use_container_width=True):
+                        # Temporarily hides the current recipe from further suggestions
+                        st.session_state.temp_exclude.append(suggested_recipe)
+                        st.rerun()
 
-                if st.button("❌ Resetuj plan"):
-                    st.session_state.meals_to_go = 0
-                    st.rerun()
+                    if btn_col3.button("Resetuj plan", use_container_width=True):
+                        # Clears all progress and returns to the initial state
+                        st.session_state.meals_to_go = 0
+                        st.session_state.daily_plan = []
+                        st.session_state.temp_exclude = []
+                        st.rerun()
 
-            # 3. Podsumowanie końcowe
+            # Displays the final summary once all meals are planned
             if st.session_state.meals_to_go == 0 and len(st.session_state.daily_plan) > 0:
-                st.success("🎉 Twój plan na dziś jest gotowy!")
-                for i, m in enumerate(st.session_state.daily_plan, 1):
-                    st.write(f"{i}. {m.title}")
+                st.success("Twój plan na dziś jest gotowy!")
+                for idx, meal in enumerate(st.session_state.daily_plan, 1):
+                    st.write(f"{idx}. {meal.title}")
 
                 if st.button("Zaplanuj nowy dzień"):
                     st.session_state.daily_plan = []

@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 
 
-
 class recipe:
     def __init__(self, title: str, macro: dict, cooking_time: float, number_of_portions: str, diet: list[str],
                  ingredients: list[str]):
@@ -18,6 +17,9 @@ class recipe:
 
     # Returns True if both class objects have the exact same attributes and values
     def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+
         return self.__dict__ == other.__dict__
 
 
